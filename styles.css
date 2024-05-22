@@ -110,3 +110,13 @@ button {
     background-color: #0f0f0f69;
   }
 }
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+}
