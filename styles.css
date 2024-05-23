@@ -131,3 +131,9 @@ body {
   width: fit-content;
   margin: 2vh auto;
 }
+
+#add-backticks {
+  margin-left: 10px;
+  width: 15px;
+  height: 15px;
+}
