@@ -1,4 +1,8 @@
+use serde::{Deserialize, Serialize};
+use serde_wasm_bindgen::to_value;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::spawn_local;
+use web_sys::{EventTarget, FileReader, HtmlInputElement};
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -6,6 +10,11 @@ use yew_router::prelude::*;
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
     async fn invoke(cmd: &str, args: JsValue) -> JsValue;
+}
+
+#[derive(Serialize, Deserialize)]
+struct ModArgs<'a> {
+    modpreset: &'a str,
 }
 
 #[derive(Clone, Routable, PartialEq)]
@@ -36,6 +45,46 @@ pub fn command_line_generator() -> Html {
     let navigator = use_navigator().unwrap();
 
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
+
+    let modlist = use_state(|| String::new());
+
+    let onchange = {
+        let file_content = modlist.clone();
+        Callback::from(move |event: Event| {
+            let target: Option<EventTarget> = event.target();
+            let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+
+            if let Some(input) = input {
+                if let Some(files) = input.files() {
+                    if let Some(file) = files.get(0) {
+                        let reader = FileReader::new().unwrap();
+                        let onloadend = {
+                            let file_content = file_content.clone();
+                            Closure::wrap(Box::new(move |event: Event| {
+                                let reader =
+                                    event.target().unwrap().dyn_into::<FileReader>().unwrap();
+                                let text = reader.result().unwrap().as_string().unwrap();
+
+                                let file_content = file_content.clone();
+                                // Invoke the Tauri command with the file content
+                                spawn_local(async move {
+                                    //let file_content = file_content.clone();
+                                    let file_data = ModArgs { modpreset: &text };
+                                    let val = to_value(&file_data).unwrap();
+                                    let x = invoke("convert", val).await.as_string().unwrap();
+                                    file_content.set(x);
+                                });
+                            }) as Box<dyn FnMut(_)>)
+                        };
+                        reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
+                        reader.read_as_text(&file).unwrap();
+                        onloadend.forget();
+                    }
+                }
+            }
+        })
+    };
+
     html! {
         <div>
             <h1>{ "Command Line Generator" }</h1>
@@ -44,8 +93,9 @@ pub fn command_line_generator() -> Html {
                     name="command-line"
                     id="command-line"
                     placeholder="Enter mods here..."
+                    value={modlist.to_string()}
                 />
-                <input type="file" name="mod-preset" id="mod-preset" />
+                <input {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <button {onclick}>{ "Go Home" }</button>
         </div>
