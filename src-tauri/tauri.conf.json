@@ -20,7 +20,7 @@
     },
     "windows": [
       {
-        "title": "aet-tools",
+        "title": "AET Tools",
         "width": 1024,
         "height": 768,
         "center": true
@@ -39,6 +39,9 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
+      ],
+      "resources": [
+        "ignored_mods.txt"
       ]
     }
   }
