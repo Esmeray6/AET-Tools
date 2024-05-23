@@ -18,12 +18,12 @@
 }
 
 .container {
-  margin: 0;
-  padding-top: 10vh;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
+  width: 80vw;
 }
 
 .logo {
@@ -87,10 +87,6 @@ button {
   outline: none;
 }
 
-#greet-input {
-  margin-right: 5px;
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -102,12 +98,17 @@ button {
   }
 
   input,
-  button {
+  button,
+  textarea {
     color: #ffffff;
     background-color: #0f0f0f98;
   }
   button:active {
     background-color: #0f0f0f69;
+  }
+
+  textarea {
+    font-size: large;
   }
 }
 
@@ -119,4 +120,14 @@ body {
   text-align: center;
   width: 100vw;
   height: 100vh;
+}
+
+#command-line {
+  height: 20vh;
+  padding: 5px;
+}
+
+#mod-preset {
+  width: fit-content;
+  margin: 2vh auto;
 }

@@ -12,8 +12,8 @@ extern "C" {
 pub enum Route {
     #[at("/")]
     Home,
-    #[at("/secure")]
-    Secure,
+    #[at("/command_line_generator")]
+    CommandLineGenerator,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -23,22 +23,30 @@ pub enum Route {
 pub fn home() -> Html {
     let navigator = use_navigator().unwrap();
 
-    let onclick = Callback::from(move |_| navigator.push(&Route::Secure));
+    let onclick = Callback::from(move |_| navigator.push(&Route::CommandLineGenerator));
     html! {
         <div>
-            <button onclick={onclick}>{ "Secure?" }</button>
+            <button onclick={onclick}>{ "Command Line Generator" }</button>
         </div>
     }
 }
 
-#[function_component(Secure)]
-pub fn secure() -> Html {
+#[function_component(CommandLineGenerator)]
+pub fn command_line_generator() -> Html {
     let navigator = use_navigator().unwrap();
 
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
     html! {
         <div>
-            <h1>{ "Secure" }</h1>
+            <h1>{ "Command Line Generator" }</h1>
+            <div class="container">
+                <textarea
+                    name="command-line"
+                    id="command-line"
+                    placeholder="Enter mods here..."
+                />
+                <input type="file" name="mod-preset" id="mod-preset" />
+            </div>
             <button {onclick}>{ "Go Home" }</button>
         </div>
     }
@@ -47,7 +55,7 @@ pub fn secure() -> Html {
 pub fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <Home /> },
-        Route::Secure => html! { <Secure /> },
+        Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }
 }
