@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
-use serde_wasm_bindgen::to_value;
+use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{EventTarget, FileReader, HtmlInputElement};
@@ -57,6 +57,7 @@ pub fn home() -> Html {
     let onclick = Callback::from(move |_| navigator.push(&Route::CommandLineGenerator));
     html! {
         <div>
+            <h1>{ "Antistasi Event Team Tools" }</h1>
             <button onclick={onclick}>{ "Command Line Generator" }</button>
         </div>
     }
@@ -100,7 +101,7 @@ pub fn command_line_generator() -> Html {
                                     };
                                     let val = to_value(&file_data).unwrap();
                                     let x = invoke("convert", val).await;
-                                    mod_data.set(serde_wasm_bindgen::from_value(x).unwrap());
+                                    mod_data.set(from_value(x).unwrap());
                                 });
                             }) as Box<dyn FnMut(_)>)
                         };
@@ -125,6 +126,7 @@ pub fn command_line_generator() -> Html {
                 />
                 <input {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
+            <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
             <button {onclick}>{ "Go Home" }</button>
         </div>
     }
@@ -134,7 +136,12 @@ pub fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <Home /> },
         Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
-        Route::NotFound => html! { <h1>{ "404" }</h1> },
+        Route::NotFound => html! {
+            <div class="container">
+                <h1>{ "404 Not Found" }</h1>
+                <p>{ "I don't know how you ended up here." }</p>
+            </div>
+        },
     }
 }
 

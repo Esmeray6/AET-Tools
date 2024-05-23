@@ -134,3 +134,8 @@ body {
   width: 15px;
   height: 15px;
 }
+
+#missing-mods {
+  color: #ff0000;
+  font-size: 20px;
+}
