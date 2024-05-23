@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::to_value;
 use wasm_bindgen::prelude::*;
@@ -12,9 +14,10 @@ extern "C" {
     async fn invoke(cmd: &str, args: JsValue) -> JsValue;
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct ModArgs<'a> {
     modpreset: &'a str,
+    backticks: bool,
 }
 
 #[derive(Clone, Routable, PartialEq)]
@@ -26,6 +29,25 @@ pub enum Route {
     #[not_found]
     #[at("/404")]
     NotFound,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ModData {
+    mods: String,
+    missing_mods: String,
+}
+
+impl Display for ModData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            format!(
+                "{{ ModData mods: {}, missing_mods: {} }}",
+                self.mods, self.missing_mods
+            )
+        )
+    }
 }
 
 #[function_component(Home)]
@@ -46,10 +68,13 @@ pub fn command_line_generator() -> Html {
 
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
-    let modlist = use_state(|| String::new());
+    let modlist = use_state(|| ModData {
+        mods: String::new(),
+        missing_mods: String::new(),
+    });
 
     let onchange = {
-        let file_content = modlist.clone();
+        let mod_data = modlist.clone();
         Callback::from(move |event: Event| {
             let target: Option<EventTarget> = event.target();
             let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
@@ -59,20 +84,23 @@ pub fn command_line_generator() -> Html {
                     if let Some(file) = files.get(0) {
                         let reader = FileReader::new().unwrap();
                         let onloadend = {
-                            let file_content = file_content.clone();
+                            let mod_data = mod_data.clone();
                             Closure::wrap(Box::new(move |event: Event| {
                                 let reader =
                                     event.target().unwrap().dyn_into::<FileReader>().unwrap();
                                 let text = reader.result().unwrap().as_string().unwrap();
 
-                                let file_content = file_content.clone();
+                                let mod_data = mod_data.clone();
                                 // Invoke the Tauri command with the file content
                                 spawn_local(async move {
-                                    //let file_content = file_content.clone();
-                                    let file_data = ModArgs { modpreset: &text };
+                                    //let mod_data = mod_data.clone();
+                                    let file_data = ModArgs {
+                                        modpreset: &text,
+                                        backticks: false,
+                                    };
                                     let val = to_value(&file_data).unwrap();
-                                    let x = invoke("convert", val).await.as_string().unwrap();
-                                    file_content.set(x);
+                                    let x = invoke("convert", val).await;
+                                    mod_data.set(serde_wasm_bindgen::from_value(x).unwrap());
                                 });
                             }) as Box<dyn FnMut(_)>)
                         };
@@ -93,7 +121,7 @@ pub fn command_line_generator() -> Html {
                     name="command-line"
                     id="command-line"
                     placeholder="Enter mods here..."
-                    value={modlist.to_string()}
+                    value={modlist.mods.to_string()}
                 />
                 <input {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
