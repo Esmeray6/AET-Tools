@@ -11,6 +11,15 @@
     "version": "0.1.0"
   },
   "tauri": {
+    "updater": {
+      "active": false,
+      "dialog": true,
+      "pubkey": "",
+      "windows": {
+        "installMode": "passive",
+        "installerArgs": []
+      }
+    },
     "allowlist": {
       "all": false,
       "shell": {
@@ -23,7 +32,8 @@
         "title": "AET Tools",
         "width": 1024,
         "height": 768,
-        "center": true
+        "center": true,
+        "theme": "Dark"
       }
     ],
     "security": {
