@@ -20,6 +20,7 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
+  align-items: center;
   width: 80vw;
 }
 
@@ -69,6 +70,7 @@ button {
 
 button {
   cursor: pointer;
+  margin: 5px auto;
 }
 
 button:hover {
@@ -122,6 +124,7 @@ body {
 #command-line {
   height: 20vh;
   padding: 5px;
+  font-size: 14px;
 }
 
 #mod-preset {
