@@ -26,6 +26,8 @@ pub enum Route {
     Home,
     #[at("/command_line_generator")]
     CommandLineGenerator,
+    #[at("/orbat_sorter")]
+    ORBATSorter,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -35,6 +37,11 @@ pub enum Route {
 struct ModData {
     mods: String,
     missing_mods: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ORBATData {
+    orbat: String,
 }
 
 impl Display for ModData {
@@ -54,11 +61,15 @@ impl Display for ModData {
 pub fn home() -> Html {
     let navigator = use_navigator().unwrap();
 
-    let onclick = Callback::from(move |_| navigator.push(&Route::CommandLineGenerator));
+    let navig = navigator.clone();
+    let command_line_redirect = Callback::from(move |_| navig.push(&Route::CommandLineGenerator));
+    let navig = navigator.clone();
+    let orbat_sorter_redirect = Callback::from(move |_| navig.push(&Route::ORBATSorter));
     html! {
-        <div>
+        <div class="container">
             <h1>{ "Antistasi Event Team Tools" }</h1>
-            <button onclick={onclick}>{ "Command Line Generator" }</button>
+            <button onclick={command_line_redirect}>{ "Command Line Generator" }</button>
+            <button onclick={orbat_sorter_redirect}>{ "ORBAT Sorter" }</button>
         </div>
     }
 }
@@ -100,7 +111,7 @@ pub fn command_line_generator() -> Html {
                                         backticks: false,
                                     };
                                     let val = to_value(&file_data).unwrap();
-                                    let x = invoke("convert", val).await;
+                                    let x = invoke("command_line_convert", val).await;
                                     mod_data.set(from_value(x).unwrap());
                                 });
                             }) as Box<dyn FnMut(_)>)
@@ -132,16 +143,76 @@ pub fn command_line_generator() -> Html {
     }
 }
 
+#[function_component(ORBATSorter)]
+pub fn orbat_sorter() -> Html {
+    let role_input_ref = use_node_ref();
+
+    let rolelist = use_state(|| String::new());
+
+    let role_msg = use_state(|| String::new());
+    {
+        let role_msg = role_msg.clone();
+        let rolelist = rolelist.clone();
+        let name2 = rolelist.clone();
+        use_effect_with(name2, move |_| {
+            spawn_local(async move {
+                if rolelist.is_empty() {
+                    return;
+                }
+
+                let args = to_value(&ORBATData {
+                    orbat: rolelist.to_string(),
+                })
+                .unwrap();
+                // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+                let new_msg = invoke("orbat_convert", args).await.as_string().unwrap();
+                role_msg.set(new_msg);
+            });
+
+            || {}
+        });
+    }
+
+    let convert = {
+        let rolelist = rolelist.clone();
+        let role_input_ref = role_input_ref.clone();
+        dbg!(&rolelist, &role_input_ref);
+        Callback::from(move |e: SubmitEvent| {
+            e.prevent_default();
+            rolelist.set(dbg!(role_input_ref
+                .cast::<web_sys::HtmlInputElement>()
+                .unwrap()
+                .value()));
+        })
+    };
+
+    html! {
+        <main class="container">
+            <form class="row" onsubmit={convert}>
+                <textarea
+                    type="text"
+                    id="convert-input"
+                    ref={role_input_ref}
+                    placeholder="Enter the list of roles..."
+                />
+                <button class="row" id="submit-button" type="submit">{ "Convert" }</button>
+            </form>
+            <textarea class="row" id="role-msg" value={role_msg.to_string()} />
+        </main>
+    }
+}
+
 pub fn switch(routes: Route) -> Html {
     match routes {
-        Route::Home => html! { <Home /> },
-        Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::NotFound => html! {
             <div class="container">
                 <h1>{ "404 Not Found" }</h1>
                 <p>{ "I don't know how you ended up here." }</p>
             </div>
         },
+        Route::Home => html! { <Home /> },
+        Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
+        Route::ORBATSorter => html! { <ORBATSorter /> },
     }
 }
 

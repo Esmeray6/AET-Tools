@@ -1,10 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashMap, env::current_dir, fs};
+mod role;
+
+use std::{collections::HashMap, env::current_dir, fs, str::FromStr};
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+
+use crate::role::Role;
 
 const REQUIRED_MODS: [&str; 12] = [
     "@ace",
@@ -29,7 +33,7 @@ struct ModData {
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
+fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
     let mut mod_list = vec![];
     let dlc_prefixes: HashMap<String, String> = Default::default();
     let ignored_mods_file = dbg!(current_dir().unwrap().join("ignored_mods.txt"));
@@ -91,9 +95,36 @@ fn convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
     })
 }
 
+#[tauri::command]
+async fn orbat_convert(orbat: String) -> Result<String, String> {
+    let mut roles = vec![];
+
+    for line in orbat.lines() {
+        let line = line.split_once(" ");
+        if let Some(line) = line {
+            let (amount, role) = line;
+            dbg!(amount, role);
+            let role_enum = Role::from_str(role).expect("Role unable to be converted");
+            roles.push((amount, role_enum));
+        }
+    }
+
+    roles.sort_by(|first, second| first.1.cmp(&second.1));
+
+    let roles = roles
+        .into_iter()
+        .map(|item| format!("{} {:?}", item.0, item.1))
+        .collect::<Vec<String>>();
+
+    Ok(dbg!(roles.join("\n").trim().to_string()))
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![convert])
+        .invoke_handler(tauri::generate_handler![
+            command_line_convert,
+            orbat_convert
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
