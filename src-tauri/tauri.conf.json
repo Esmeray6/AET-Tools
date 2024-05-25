@@ -19,7 +19,7 @@
         "installMode": "passive",
         "installerArgs": []
       },
-      "endpoints": ["https://github.com/Esmeray6/ORBAT-Sorter/releases/download/latest/latest.json"]
+      "endpoints": ["https://github.com/Esmeray6/ORBAT-Sorter/releases/latest/download/latest.json"]
     },
     "allowlist": {
       "all": false,
