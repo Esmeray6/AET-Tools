@@ -11,8 +11,8 @@ edition = "2021"
 tauri-build = { version = "1.5.2", features = [] }
 
 [dependencies]
-tauri = { version = "1.6.7", features = ["shell-open"] }
-serde = { version = "1.0.202", features = ["derive"] }
+tauri = { version = "1.6.7", features = [ "updater", "shell-open"] }
+serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
 scraper = "0.19.0"
 strum_macros = "0.26.2"

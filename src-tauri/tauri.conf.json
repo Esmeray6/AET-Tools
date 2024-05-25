@@ -8,17 +8,18 @@
   },
   "package": {
     "productName": "aet-tools",
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "tauri": {
     "updater": {
-      "active": false,
+      "active": true,
       "dialog": true,
-      "pubkey": "",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMwQzJFN0Q2MDAxMTJCN0EKUldSNkt4RUExdWZDd0liUFdCUXFLSG94dTNZeUIwWVR2ZDdYQW5SWkxvRURBWkNhWk9nR2lEdloK",
       "windows": {
         "installMode": "passive",
         "installerArgs": []
-      }
+      },
+      "endpoints": ["https://github.com/Esmeray6/ORBAT-Sorter/releases/download/latest/latest.json"]
     },
     "allowlist": {
       "all": false,
