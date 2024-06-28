@@ -19,13 +19,29 @@
         "installMode": "passive",
         "installerArgs": []
       },
-      "endpoints": ["https://github.com/Esmeray6/ORBAT-Sorter/releases/latest/download/latest.json"]
+      "endpoints": [
+        "https://github.com/Esmeray6/ORBAT-Sorter/releases/latest/download/latest.json"
+      ]
     },
     "allowlist": {
       "all": false,
       "shell": {
         "all": false,
-        "open": true
+        "open": true,
+        "scope": [
+          {
+            "name": "config2json",
+            "cmd": "./config2json"
+          }
+        ]
+      },
+      "dialog": {
+        "all": false,
+        "ask": false,
+        "confirm": false,
+        "message": false,
+        "open": true,
+        "save": false
       }
     },
     "windows": [
@@ -42,7 +58,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "all",
+      "targets": "msi",
       "identifier": "com.esmeray.aet-tools",
       "icon": [
         "icons/32x32.png",
@@ -52,9 +68,12 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "ignored_mods.txt"
+        "ignored_mods.txt",
+        "CfgConvert.exe",
+        "MissionDerap.bat",
+        "config2json.exe"
       ],
       "publisher": "Esmeray"
-    } 
+    }
   }
 }
