@@ -1,4 +1,6 @@
+use log::info;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
@@ -47,6 +49,7 @@ struct ORBATData {
 #[derive(Serialize, Deserialize, Debug)]
 struct MissionData {
     sqm: String,
+    players: Vec<Value>,
 }
 
 // impl Display for ModData {
@@ -80,7 +83,7 @@ pub fn home() -> Html {
             <h1>{ "Antistasi Event Team Tools" }</h1>
             <button onclick={command_line_redirect}>{ "Command Line Generator" }</button>
             <button onclick={orbat_sorter_redirect}>{ "ORBAT Sorter" }</button>
-            <button onclick={inventory_viewer_redirect}>{ "Inventory Viewer?" }</button>
+            <button onclick={inventory_viewer_redirect}>{ "Inventory Viewer" }</button>
         </div>
     }
 }
@@ -91,7 +94,10 @@ pub fn inventory_viewer() -> Html {
 
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
-    let mission_data = use_state(|| MissionData { sqm: String::new() });
+    let mission_data = use_state(|| MissionData {
+        sqm: String::new(),
+        players: Vec::new(),
+    });
 
     let onchange = {
         let mission_data = mission_data.clone();
@@ -114,9 +120,16 @@ pub fn inventory_viewer() -> Html {
                                 // Invoke the Tauri command with the file content
                                 spawn_local(async move {
                                     //let mission_data = mission_data.clone();
-                                    let file_data = MissionData { sqm: text };
+                                    let file_data = MissionData {
+                                        sqm: text,
+                                        players: Vec::new(),
+                                    };
                                     let val = to_value(&file_data).unwrap();
                                     let x = invoke("inventory_view", val).await;
+                                    info!(
+                                        "{:#?}",
+                                        serde_wasm_bindgen::from_value::<Value>(x.clone()).unwrap()
+                                    );
                                     mission_data.set(from_value(x).unwrap());
                                 });
                             }) as Box<dyn FnMut(_)>)

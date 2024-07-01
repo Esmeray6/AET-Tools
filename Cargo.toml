@@ -14,6 +14,9 @@ serde = { version = "1.0.202", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 console_error_panic_hook = "0.1.7"
 yew-router = "0.18.0"
+wasm-logger = "0.2.0"
+log = { version = "0.4.22", features = ["kv", "kv_serde"] }
+serde_json = { version = "1.0.119", features = ["preserve_order"] }
 
 [workspace]
 members = ["src-tauri"]
