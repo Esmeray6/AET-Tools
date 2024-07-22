@@ -147,12 +147,12 @@ pub fn inventory_viewer() -> Html {
         <div>
             <h1>{ "Inventory Viewer" }</h1>
             <div class="container">
-                <textarea
-                    name="inventory-viewer"
-                    id="inventory-viewer"
-                    placeholder="Enter mods here..."
-                    value={mission_data.sqm.to_string()}
-                />
+                // <textarea
+                //     name="inventory-viewer"
+                //     id="inventory-viewer"
+                //     placeholder="Enter mods here..."
+                //     value={mission_data.sqm.to_string()}
+                // />
                 <input {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <button {onclick}>{ "Go Home" }</button>
