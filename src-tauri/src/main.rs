@@ -119,6 +119,11 @@ struct MissionData {
     players: Vec<Entity>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct MissionPlayers {
+    players: Vec<Entity>,
+}
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
@@ -199,16 +204,22 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
 
     roles.sort_by(|first, second| first.1.cmp(&second.1));
 
-    let roles = roles
+    let mut roles = roles
         .into_iter()
         .map(|item| format!("{} {:?}", item.0, item.1))
         .collect::<Vec<String>>();
+
+    if let Some(possible_zeus) = roles.get(0) {
+        if !possible_zeus.to_lowercase().contains("zeus") {
+            roles.insert(0, "2x Zeus".to_string());
+        }
+    }
 
     Ok(dbg!(roles.join("\n").trim().to_string()))
 }
 
 #[tauri::command]
-async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionData, String> {
+async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionPlayers, String> {
     let file_result = File::create("mission.sqm");
     if let Ok(mut file) = file_result {
         let write_result = file.write(sqm.as_bytes());
@@ -304,10 +315,7 @@ async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionData
                     players.push(player);
                 }
 
-                let mission_data_struct = MissionData {
-                    sqm: data.clone(),
-                    players,
-                };
+                let mission_data_struct = MissionPlayers { players };
 
                 // // dbg!(&player_inventories.len());
                 // // Ensure the parsed value is an object.

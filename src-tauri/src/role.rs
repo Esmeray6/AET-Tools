@@ -28,6 +28,7 @@ pub enum Role {
         serialize = "Plt 2iC"
     )]
     #[strum(ascii_case_insensitive)]
+    #[strum(to_string = "P_Sgt")]
     PSgt,
 
     #[strum(serialize = "SL", serialize = "Squad Leader")]
@@ -119,7 +120,20 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     AAR,
 
-    #[strum(serialize = "AT", serialize = "Anti-Tank", serialize = "Anti Tank")]
+    #[strum(
+        serialize = "AT",
+        serialize = "Anti-Tank",
+        serialize = "Anti Tank",
+        serialize = "LAT",
+        serialize = "Light Anti-Tank",
+        serialize = "Light Anti Tank",
+        serialize = "MAT",
+        serialize = "Medium Anti-Tank",
+        serialize = "Medium Anti Tank",
+        serialize = "HAT",
+        serialize = "Heavy Anti-Tank",
+        serialize = "Heavy Anti Tank"
+    )]
     #[strum(ascii_case_insensitive)]
     AT,
 
@@ -185,4 +199,89 @@ pub enum Role {
     )]
     #[strum(ascii_case_insensitive)]
     Rifleman,
+
+    #[strum(serialize = "Sniper Team", serialize = "Sniper_Team")]
+    #[strum(ascii_case_insensitive)]
+    #[strum(to_string = "Sniper_Team")]
+    SniperTeam,
+
+    #[strum(serialize = "MG Team", serialize = "MG_Team")]
+    #[strum(ascii_case_insensitive)]
+    #[strum(to_string = "MG_Team")]
+    MGTeam,
+
+    #[strum(serialize = "Artillery", serialize = "ARTY")]
+    #[strum(ascii_case_insensitive)]
+    #[strum(to_string = "ARTY")]
+    Artillery,
+
+    #[strum(serialize = "Logistics", serialize = "LOGI")]
+    #[strum(ascii_case_insensitive)]
+    Logistics,
+
+    #[strum(serialize = "Main Battle Tank", serialize = "MBT")]
+    #[strum(ascii_case_insensitive)]
+    MBT,
+
+    #[strum(serialize = "Infantry Fighting Vehicle", serialize = "IFV")]
+    #[strum(ascii_case_insensitive)]
+    IFV,
+
+    #[strum(
+        serialize = "Armored Personnel Carrier",
+        serialize = "Armoured Personnel Carrier",
+        serialize = "APC"
+    )]
+    #[strum(ascii_case_insensitive)]
+    APC,
+
+    #[strum(
+        serialize = "Mine-Resistant Ambush Protected",
+        serialize = "Mine Resistant Ambush Protected",
+        serialize = "MRAP"
+    )]
+    #[strum(ascii_case_insensitive)]
+    MRAP,
+
+    #[strum(
+        serialize = "Close Air Support",
+        serialize = "Air Support",
+        serialize = "CAS"
+    )]
+    #[strum(ascii_case_insensitive)]
+    CAS,
+
+    #[strum(
+        serialize = "Combat Air Patrol",
+        serialize = "Air Patrol",
+        serialize = "CAP"
+    )]
+    #[strum(ascii_case_insensitive)]
+    CAP,
+
+    #[strum(
+        serialize = "Vertical Take-Off and Landing",
+        serialize = "Vertical Take-Off Landing",
+        serialize = "Vertical Take-Off & Landing",
+        serialize = "VTOL"
+    )]
+    #[strum(ascii_case_insensitive)]
+    VTOL,
+
+    #[strum(
+        serialize = "CAS Helicopter",
+        serialize = "Rotary CAS",
+        serialize = "CASHeli",
+        serialize = "CAS Heli"
+    )]
+    #[strum(ascii_case_insensitive)]
+    CASHeli,
+
+    #[strum(serialize = "Transport")]
+    #[strum(ascii_case_insensitive)]
+    Transport,
+
+    #[strum(serialize = "Unmanned Aerial Vehicle", serialize = "UAV")]
+    #[strum(ascii_case_insensitive)]
+    UAV,
 }
