@@ -3,5 +3,5 @@
 /Cargo.lock
 .vscode
 
-**/*.json
+**/output.json
 **/*.sqm*
