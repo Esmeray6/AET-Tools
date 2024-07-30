@@ -14,13 +14,13 @@
     "updater": {
       "active": true,
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEMwQzJFN0Q2MDAxMTJCN0EKUldSNkt4RUExdWZDd0liUFdCUXFLSG94dTNZeUIwWVR2ZDdYQW5SWkxvRURBWkNhWk9nR2lEdloK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJEQjc5RkVBOTU0QkE5RQpSV1NldWxTcC9ubmJBdGNLMGloSEUzNCtFREp3R1haWjdqc3VwQ0hReTdXWm01dHVmZ2EzRGVOSwo=",
       "windows": {
         "installMode": "passive",
         "installerArgs": []
       },
       "endpoints": [
-        "https://github.com/Esmeray6/ORBAT-Sorter/releases/latest/download/latest.json"
+        "https://github.com/Esmeray6/AET-Tools/releases/latest/download/latest.json"
       ]
     },
     "allowlist": {
@@ -58,7 +58,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "msi",
+      "targets": ["msi", "updater"],
       "identifier": "com.esmeray.aet-tools",
       "icon": [
         "icons/32x32.png",
