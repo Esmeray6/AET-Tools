@@ -18,7 +18,7 @@ use tauri::api::process::Command;
 
 use crate::role::Role;
 
-const REQUIRED_MODS: [&str; 12] = [
+const REQUIRED_MODS: [&str; 11] = [
     "@ace",
     "@ArmorModifierACE",
     "@CBAA3",
@@ -30,7 +30,6 @@ const REQUIRED_MODS: [&str; 12] = [
     "@TaskForceArrowheadRadioBETA",
     "@UnitVoiceOversAETAiO",
     "@ZeusEnhanced",
-    "@ZeusEnhancedACE3Compatibility",
 ];
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
