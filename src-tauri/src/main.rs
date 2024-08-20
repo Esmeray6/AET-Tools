@@ -207,10 +207,11 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
         .map(|item| format!("{} {:?}", item.0, item.1))
         .collect::<Vec<String>>();
 
-    if let Some(possible_zeus) = roles.first() {
-        if !possible_zeus.to_lowercase().contains("zeus") {
-            roles.insert(0, "2x Zeus".to_string());
-        }
+    let zeus_present = dbg!(roles
+        .iter()
+        .any(|role| role.to_lowercase().contains("zeus")));
+    if !zeus_present {
+        roles.insert(0, "2x Zeus".to_string());
     }
 
     Ok(dbg!(roles.join("\n").trim().to_string()))
