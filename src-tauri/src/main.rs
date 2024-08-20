@@ -130,9 +130,8 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
     let dlc_prefixes: HashMap<String, String> = Default::default();
     let ignored_mods_file = dbg!(current_dir().unwrap().join("ignored_mods.txt"));
     let ignored_mods = fs::read_to_string(ignored_mods_file).unwrap();
-    let mods;
 
-    let markup = Html::parse_document(&modpreset);
+    let markup = Html::parse_document(modpreset);
     let mods_selector =
         Selector::parse("div.mod-list > table > tbody > tr > td[data-type='DisplayName']")
             .expect("No mod list found");
@@ -143,7 +142,7 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
     for element in markup.select(&dlc_selector) {
         let inner_html = element.text().next().unwrap();
         dbg!(&inner_html);
-        let dlc_prefix = dlc_prefixes.get(&*inner_html);
+        let dlc_prefix = dlc_prefixes.get(inner_html);
         if let Some(dlc_name) = dlc_prefix {
             mod_list.push(dlc_name.to_string());
         }
@@ -162,7 +161,7 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
         }
     }
 
-    mod_list.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+    mod_list.sort_by_key(|a| a.to_lowercase());
 
     let mut missing_mods = vec![];
     let mut missing_mods_str = String::new();
@@ -171,15 +170,15 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
             missing_mods.push(required_mod);
         }
     }
-    if missing_mods.len() > 0 {
+    if !missing_mods.is_empty() {
         missing_mods_str = format!("Required mods missing: {}", missing_mods.join(", "));
     }
 
-    if backticks {
-        mods = format!("```\n{}\n```", mod_list.join(";"))
+    let mods = if backticks {
+        format!("```\n{}\n```", mod_list.join(";"))
     } else {
-        mods = mod_list.join(";");
-    }
+        mod_list.join(";")
+    };
 
     Ok(ModData {
         mods,
@@ -208,7 +207,7 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
         .map(|item| format!("{} {:?}", item.0, item.1))
         .collect::<Vec<String>>();
 
-    if let Some(possible_zeus) = roles.get(0) {
+    if let Some(possible_zeus) = roles.first() {
         if !possible_zeus.to_lowercase().contains("zeus") {
             roles.insert(0, "2x Zeus".to_string());
         }
@@ -244,7 +243,7 @@ async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionPlay
                 let mut players = vec![];
 
                 let mut player_inventories = vec![];
-                let mission_json: Value = serde_json::from_str(&&data).unwrap();
+                let mission_json: Value = serde_json::from_str(&data).unwrap();
                 let mission_data = serde_json::from_value::<MissionSource>(
                     mission_json.get("Mission").unwrap().clone(),
                 )
@@ -318,16 +317,16 @@ async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionPlay
 
                 // // dbg!(&player_inventories.len());
                 // // Ensure the parsed value is an object.
-                return Ok(mission_data_struct);
+                Ok(mission_data_struct)
             } else {
-                return dbg!(Err(file_result.err().unwrap().to_string()));
+                dbg!(Err(file_result.err().unwrap().to_string()))
             }
             // return Ok(MissionData { sqm: output.stdout });
         } else {
-            return dbg!(Err(write_result.err().unwrap().to_string()));
+            dbg!(Err(write_result.err().unwrap().to_string()))
         }
     } else {
-        return Err(file_result.err().unwrap().to_string());
+        Err(file_result.err().unwrap().to_string())
     }
 }
 
