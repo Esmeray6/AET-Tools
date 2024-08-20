@@ -233,9 +233,9 @@ pub fn command_line_generator() -> Html {
 pub fn orbat_sorter() -> Html {
     let role_input_ref = use_node_ref();
 
-    let rolelist = use_state(|| String::new());
+    let rolelist = use_state(String::new);
 
-    let role_msg = use_state(|| String::new());
+    let role_msg = use_state(String::new);
     {
         let role_msg = role_msg.clone();
         let rolelist = rolelist.clone();
@@ -259,12 +259,12 @@ pub fn orbat_sorter() -> Html {
         });
     }
 
-    let convert = {
+    let onclick = {
         let rolelist = rolelist.clone();
         let role_input_ref = role_input_ref.clone();
         dbg!(&rolelist, &role_input_ref);
-        Callback::from(move |e: SubmitEvent| {
-            e.prevent_default();
+        Callback::from(move |_e: MouseEvent| {
+            // e.prevent_default();
             rolelist.set(dbg!(role_input_ref
                 .cast::<web_sys::HtmlInputElement>()
                 .unwrap()
@@ -274,15 +274,13 @@ pub fn orbat_sorter() -> Html {
 
     html! {
         <main class="container">
-            <form class="row" onsubmit={convert}>
-                <textarea
-                    type="text"
-                    id="convert-input"
-                    ref={role_input_ref}
-                    placeholder="Enter the list of roles..."
-                />
-                <button class="row" id="submit-button" type="submit">{ "Convert" }</button>
-            </form>
+            <textarea
+                type="text"
+                id="convert-input"
+                ref={role_input_ref}
+                placeholder="Enter the list of roles..."
+            />
+            <button class="row" id="submit-button" type="submit" {onclick}>{ "Convert" }</button>
             <textarea class="row" id="role-msg" value={role_msg.to_string()} />
         </main>
     }

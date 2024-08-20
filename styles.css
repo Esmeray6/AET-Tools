@@ -38,6 +38,7 @@
 .row {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 a {
@@ -125,6 +126,8 @@ body {
   height: 20vh;
   padding: 5px;
   font-size: 14px;
+  width: 80vw;
+  height: 340px;
 }
 
 #mod-preset {
@@ -141,4 +144,13 @@ body {
 #missing-mods {
   color: #ff0000;
   font-size: 20px;
+}
+
+#submit-button {
+  max-height: 50px;
+}
+
+#convert-input, #role-msg {
+  width: 400px;
+  height: 200px;
 }
