@@ -6,15 +6,12 @@ mod role;
 use std::{
     collections::HashMap,
     env::current_dir,
-    fs::{self, File},
-    io::{Read, Write},
+    fs,
     str::FromStr,
 };
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
-use serde_json::{from_value, Value};
-use tauri::api::process::Command;
 
 use crate::role::Role;
 
@@ -28,7 +25,7 @@ const REQUIRED_MODS: [&str; 11] = [
     "@MetisMarker",
     "@ProneLauncher",
     "@TaskForceArrowheadRadioBETA",
-    "@UnitVoiceOversAETAiO",
+    "@UVOAETAIO",
     "@ZeusEnhanced",
 ];
 
@@ -38,90 +35,90 @@ struct ModData {
     missing_mods: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Entity {
-    #[serde(alias = "dataType")]
-    data_type: String,
-    #[serde(alias = "Attributes")]
-    attributes: Option<EntityAttributes>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct Entity {
+//     #[serde(alias = "dataType")]
+//     data_type: String,
+//     #[serde(alias = "Attributes")]
+//     attributes: Option<EntityAttributes>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct EntityAttributes {
-    rank: Option<String>,
-    description: Option<String>,
-    #[serde(alias = "isPlayable")]
-    is_playable: Option<u8>,
-    #[serde(alias = "isPlayer")]
-    is_player: Option<u8>,
-    #[serde(alias = "Inventory")]
-    inventory: EntityInventory,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct EntityAttributes {
+//     rank: Option<String>,
+//     description: Option<String>,
+//     #[serde(alias = "isPlayable")]
+//     is_playable: Option<u8>,
+//     #[serde(alias = "isPlayer")]
+//     is_player: Option<u8>,
+//     #[serde(alias = "Inventory")]
+//     inventory: EntityInventory,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct EntityInventory {
-    primary_weapon: Option<Weapon>,
-    handgun: Option<Weapon>,
-    secondary_weapon: Option<Weapon>,
-    uniform: Option<Container>,
-    vest: Option<Container>,
-    backpack: Option<Container>,
-    binocular: Option<Item>,
-    compass: Option<String>,
-    gps: Option<String>,
-    map: Option<String>,
-    radio: Option<String>,
-    watch: Option<String>,
-    headgear: Option<String>,
-    goggles: Option<String>,
-    hmd: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct EntityInventory {
+//     primary_weapon: Option<Weapon>,
+//     handgun: Option<Weapon>,
+//     secondary_weapon: Option<Weapon>,
+//     uniform: Option<Container>,
+//     vest: Option<Container>,
+//     backpack: Option<Container>,
+//     binocular: Option<Item>,
+//     compass: Option<String>,
+//     gps: Option<String>,
+//     map: Option<String>,
+//     radio: Option<String>,
+//     watch: Option<String>,
+//     headgear: Option<String>,
+//     goggles: Option<String>,
+//     hmd: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Weapon {
-    name: Option<String>,
-    optics: Option<String>,
-    muzzle: Option<String>,
-    flashlight: Option<String>,
-    firemode: Option<String>,
-    #[serde(alias = "primaryMuzzleMag")]
-    primary_muzzle_mag: Option<Item>,
-    #[serde(alias = "secondaryMuzzleMag")]
-    secondary_muzzle_mag: Option<Item>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct Weapon {
+//     name: Option<String>,
+//     optics: Option<String>,
+//     muzzle: Option<String>,
+//     flashlight: Option<String>,
+//     firemode: Option<String>,
+//     #[serde(alias = "primaryMuzzleMag")]
+//     primary_muzzle_mag: Option<Item>,
+//     #[serde(alias = "secondaryMuzzleMag")]
+//     secondary_muzzle_mag: Option<Item>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Item {
-    name: String,
-    count: Option<u64>,
-    #[serde(alias = "ammoLeft")]
-    ammo_left: Option<u64>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct Item {
+//     name: String,
+//     count: Option<u64>,
+//     #[serde(alias = "ammoLeft")]
+//     ammo_left: Option<u64>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Container {
-    #[serde(alias = "typeName")]
-    type_name: String,
-    #[serde(alias = "isBackpack")]
-    is_backpack: Option<u64>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct Container {
+//     #[serde(alias = "typeName")]
+//     type_name: String,
+//     #[serde(alias = "isBackpack")]
+//     is_backpack: Option<u64>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct MissionSource {
-    #[serde(alias = "Entities")]
-    entities: Value,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct MissionSource {
+//     #[serde(alias = "Entities")]
+//     entities: Value,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct MissionData {
-    sqm: String,
-    players: Vec<Entity>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct MissionData {
+//     sqm: String,
+//     players: Vec<Entity>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct MissionPlayers {
-    players: Vec<Entity>,
-}
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// struct MissionPlayers {
+//     players: Vec<Entity>,
+// }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -217,126 +214,126 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
     Ok(dbg!(roles.join("\n").trim().to_string()))
 }
 
-#[tauri::command]
-async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionPlayers, String> {
-    let file_result = File::create("mission.sqm");
-    if let Ok(mut file) = file_result {
-        let write_result = file.write(sqm.as_bytes());
-        if write_result.is_ok() {
-            let _derap_output = Command::new("./MissionDerap.bat")
-                .args(["mission.sqm"])
-                .output()
-                .unwrap();
+// #[tauri::command]
+// async fn inventory_view(sqm: String, _players: Vec<Value>) -> Result<MissionPlayers, String> {
+//     let file_result = File::create("mission.sqm");
+//     if let Ok(mut file) = file_result {
+//         let write_result = file.write(sqm.as_bytes());
+//         if write_result.is_ok() {
+//             let _derap_output = Command::new("./MissionDerap.bat")
+//                 .args(["mission.sqm"])
+//                 .output()
+//                 .unwrap();
 
-            // Successful parsing of the file. The program outputs "{}" if an empty file is received.
-            let json_output = Command::new("./config2json.exe")
-                .args(["mission.sqm", "output.json"])
-                .output()
-                .unwrap();
+//             // Successful parsing of the file. The program outputs "{}" if an empty file is received.
+//             let json_output = Command::new("./config2json.exe")
+//                 .args(["mission.sqm", "output.json"])
+//                 .output()
+//                 .unwrap();
 
-            if !json_output.stdout.contains("Parsing") {
-                return dbg!(Err("Empty file".to_string()));
-            }
-            let file_result = File::open("output.json");
-            if let Ok(mut file) = file_result {
-                let mut data = String::new();
-                file.read_to_string(&mut data).unwrap();
-                let mut players = vec![];
+//             if !json_output.stdout.contains("Parsing") {
+//                 return dbg!(Err("Empty file".to_string()));
+//             }
+//             let file_result = File::open("output.json");
+//             if let Ok(mut file) = file_result {
+//                 let mut data = String::new();
+//                 file.read_to_string(&mut data).unwrap();
+//                 let mut players = vec![];
 
-                let mut player_inventories = vec![];
-                let mission_json: Value = serde_json::from_str(&data).unwrap();
-                let mission_data = serde_json::from_value::<MissionSource>(
-                    mission_json.get("Mission").unwrap().clone(),
-                )
-                .unwrap();
-                let _mission_name = dbg!(&mission_json["sourceName"]
-                    .as_str()
-                    .unwrap()
-                    .replace("_", " "));
-                let entities = mission_data.entities;
-                for (_key, value) in entities.as_object().unwrap() {
-                    if value.get("dataType").is_some() {
-                        let data_type = if value.get("dataType").is_some() {
-                            value.get("dataType").unwrap().as_str().unwrap()
-                        } else {
-                            ""
-                        };
-                        if value.is_object() || data_type == "Group" {
-                            if let Some(entity) = value.get("Entities") {
-                                for (_key, value) in entity.as_object().unwrap() {
-                                    if let Some(attributes) = value.get("Attributes") {
-                                        let is_playable = attributes
-                                            .get("isPlayable")
-                                            .or(attributes.get("isEntity"));
-                                        if is_playable.is_some()
-                                            && is_playable.unwrap().as_u64() == Some(1)
-                                        {
-                                            player_inventories
-                                                .push(from_value::<Entity>(value.clone()).unwrap())
-                                        }
-                                    }
-                                }
-                            }
-                        } else if value.is_object() || data_type == "Layer" {
-                            if let Some(entity) = value.get("Entities") {
-                                for (_key, value) in entity.as_object().unwrap() {
-                                    if value.is_object() || data_type == "Group" {
-                                        if let Some(entity) = value.get("Entities") {
-                                            for (_key, value) in entity.as_object().unwrap() {
-                                                if let Some(attributes) = value.get("Attributes") {
-                                                    let is_playable = attributes
-                                                        .get("isPlayable")
-                                                        .or(attributes.get("isEntity"));
-                                                    if is_playable.is_some()
-                                                        && is_playable.unwrap().as_u64() == Some(1)
-                                                    {
-                                                        player_inventories.push(
-                                                            from_value::<Entity>(value.clone())
-                                                                .unwrap(),
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+//                 let mut player_inventories = vec![];
+//                 let mission_json: Value = serde_json::from_str(&data).unwrap();
+//                 let mission_data = serde_json::from_value::<MissionSource>(
+//                     mission_json.get("Mission").unwrap().clone(),
+//                 )
+//                 .unwrap();
+//                 let _mission_name = dbg!(&mission_json["sourceName"]
+//                     .as_str()
+//                     .unwrap()
+//                     .replace("_", " "));
+//                 let entities = mission_data.entities;
+//                 for (_key, value) in entities.as_object().unwrap() {
+//                     if value.get("dataType").is_some() {
+//                         let data_type = if value.get("dataType").is_some() {
+//                             value.get("dataType").unwrap().as_str().unwrap()
+//                         } else {
+//                             ""
+//                         };
+//                         if value.is_object() || data_type == "Group" {
+//                             if let Some(entity) = value.get("Entities") {
+//                                 for (_key, value) in entity.as_object().unwrap() {
+//                                     if let Some(attributes) = value.get("Attributes") {
+//                                         let is_playable = attributes
+//                                             .get("isPlayable")
+//                                             .or(attributes.get("isEntity"));
+//                                         if is_playable.is_some()
+//                                             && is_playable.unwrap().as_u64() == Some(1)
+//                                         {
+//                                             player_inventories
+//                                                 .push(from_value::<Entity>(value.clone()).unwrap())
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         } else if value.is_object() || data_type == "Layer" {
+//                             if let Some(entity) = value.get("Entities") {
+//                                 for (_key, value) in entity.as_object().unwrap() {
+//                                     if value.is_object() || data_type == "Group" {
+//                                         if let Some(entity) = value.get("Entities") {
+//                                             for (_key, value) in entity.as_object().unwrap() {
+//                                                 if let Some(attributes) = value.get("Attributes") {
+//                                                     let is_playable = attributes
+//                                                         .get("isPlayable")
+//                                                         .or(attributes.get("isEntity"));
+//                                                     if is_playable.is_some()
+//                                                         && is_playable.unwrap().as_u64() == Some(1)
+//                                                     {
+//                                                         player_inventories.push(
+//                                                             from_value::<Entity>(value.clone())
+//                                                                 .unwrap(),
+//                                                         )
+//                                                     }
+//                                                 }
+//                                             }
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
 
-                for player in player_inventories {
-                    // let player_type = player.data_type;
-                    // if player_type != "Object" {
-                    //     continue;
-                    // }
+//                 for player in player_inventories {
+//                     // let player_type = player.data_type;
+//                     // if player_type != "Object" {
+//                     //     continue;
+//                     // }
 
-                    players.push(player);
-                }
+//                     players.push(player);
+//                 }
 
-                let mission_data_struct = MissionPlayers { players };
+//                 let mission_data_struct = MissionPlayers { players };
 
-                // // dbg!(&player_inventories.len());
-                // // Ensure the parsed value is an object.
-                Ok(mission_data_struct)
-            } else {
-                dbg!(Err(file_result.err().unwrap().to_string()))
-            }
-            // return Ok(MissionData { sqm: output.stdout });
-        } else {
-            dbg!(Err(write_result.err().unwrap().to_string()))
-        }
-    } else {
-        Err(file_result.err().unwrap().to_string())
-    }
-}
+//                 // // dbg!(&player_inventories.len());
+//                 // // Ensure the parsed value is an object.
+//                 Ok(mission_data_struct)
+//             } else {
+//                 dbg!(Err(file_result.err().unwrap().to_string()))
+//             }
+//             // return Ok(MissionData { sqm: output.stdout });
+//         } else {
+//             dbg!(Err(write_result.err().unwrap().to_string()))
+//         }
+//     } else {
+//         Err(file_result.err().unwrap().to_string())
+//     }
+// }
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            inventory_view
+            // inventory_view
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

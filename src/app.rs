@@ -1,4 +1,3 @@
-use log::info;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_wasm_bindgen::{from_value, to_value};
@@ -28,8 +27,8 @@ pub enum Route {
     CommandLineGenerator,
     #[at("/orbat_sorter")]
     ORBATSorter,
-    #[at("/inventory_viewer")]
-    InventoryViewer,
+    // #[at("/inventory_viewer")]
+    // InventoryViewer,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -52,18 +51,48 @@ struct MissionData {
     players: Vec<Value>,
 }
 
-// impl Display for ModData {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         write!(
-//             f,
-//             "{}",
-//             format!(
-//                 "{{ ModData mods: {}, missing_mods: {} }}",
-//                 self.mods, self.missing_mods
-//             )
-//         )
-//     }
-// }
+pub const ROLES: [&str; 40] = [
+    "Zeus",
+    "ZH",
+    "Coy",
+    "PL",
+    "P_Sgt",
+    "SL",
+    "TL",
+    "RTO",
+    "JTAC",
+    "Medic",
+    "ENG",
+    "EOD",
+    "DEMO",
+    "MG",
+    "AMG",
+    "AR",
+    "AAR",
+    "AT",
+    "AAT",
+    "AA",
+    "AAA",
+    "Pointman",
+    "DMR",
+    "GL",
+    "AMMO",
+    "Rifleman",
+    "Sniper_Team",
+    "MG_Team",
+    "ARTY",
+    "LOGI",
+    "MBT",
+    "IFV",
+    "APC",
+    "MRAP",
+    "CAS",
+    "CAP",
+    "VTOL",
+    "CASHeli",
+    "Transport",
+    "UAV",
+];
 
 #[function_component(Home)]
 pub fn home() -> Html {
@@ -75,90 +104,90 @@ pub fn home() -> Html {
     let navig = navigator.clone();
     let orbat_sorter_redirect = Callback::from(move |_| navig.push(&Route::ORBATSorter));
 
-    let navig = navigator.clone();
-    let inventory_viewer_redirect = Callback::from(move |_| navig.push(&Route::InventoryViewer));
+    // let navig = navigator.clone();
+    // let inventory_viewer_redirect = Callback::from(move |_| navig.push(&Route::InventoryViewer));
 
     html! {
         <div class="container">
             <h1>{ "Antistasi Event Team Tools" }</h1>
             <button onclick={command_line_redirect}>{ "Command Line Generator" }</button>
             <button onclick={orbat_sorter_redirect}>{ "ORBAT Sorter" }</button>
-            <button onclick={inventory_viewer_redirect}>{ "Inventory Viewer" }</button>
+            // <button onclick={inventory_viewer_redirect}>{ "Inventory Viewer" }</button>
         </div>
     }
 }
 
-#[function_component(InventoryViewer)]
-pub fn inventory_viewer() -> Html {
-    let navigator = use_navigator().unwrap();
+// #[function_component(InventoryViewer)]
+// pub fn inventory_viewer() -> Html {
+//     let navigator = use_navigator().unwrap();
 
-    let onclick = Callback::from(move |_| navigator.push(&Route::Home));
+//     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
-    let mission_data = use_state(|| MissionData {
-        sqm: String::new(),
-        players: Vec::new(),
-    });
+//     let mission_data = use_state(|| MissionData {
+//         sqm: String::new(),
+//         players: Vec::new(),
+//     });
 
-    let onchange = {
-        let mission_data = mission_data.clone();
-        Callback::from(move |event: Event| {
-            let target: Option<EventTarget> = event.target();
-            let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+//     let onchange = {
+//         let mission_data = mission_data.clone();
+//         Callback::from(move |event: Event| {
+//             let target: Option<EventTarget> = event.target();
+//             let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
 
-            if let Some(input) = input {
-                if let Some(files) = input.files() {
-                    if let Some(file) = files.get(0) {
-                        let reader = FileReader::new().unwrap();
-                        let onloadend = {
-                            let mission_data = mission_data.clone();
-                            Closure::wrap(Box::new(move |event: Event| {
-                                let reader =
-                                    event.target().unwrap().dyn_into::<FileReader>().unwrap();
-                                let text = reader.result().unwrap().as_string().unwrap();
+//             if let Some(input) = input {
+//                 if let Some(files) = input.files() {
+//                     if let Some(file) = files.get(0) {
+//                         let reader = FileReader::new().unwrap();
+//                         let onloadend = {
+//                             let mission_data = mission_data.clone();
+//                             Closure::wrap(Box::new(move |event: Event| {
+//                                 let reader =
+//                                     event.target().unwrap().dyn_into::<FileReader>().unwrap();
+//                                 let text = reader.result().unwrap().as_string().unwrap();
 
-                                let mission_data = mission_data.clone();
-                                // Invoke the Tauri command with the file content
-                                spawn_local(async move {
-                                    //let mission_data = mission_data.clone();
-                                    let file_data = MissionData {
-                                        sqm: text,
-                                        players: Vec::new(),
-                                    };
-                                    let val = to_value(&file_data).unwrap();
-                                    let x = invoke("inventory_view", val).await;
-                                    info!(
-                                        "{:#?}",
-                                        serde_wasm_bindgen::from_value::<Value>(x.clone()).unwrap()
-                                    );
-                                    mission_data.set(from_value(x).unwrap());
-                                });
-                            }) as Box<dyn FnMut(_)>)
-                        };
-                        reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
-                        reader.read_as_text(&file).unwrap();
-                        onloadend.forget();
-                    }
-                }
-            }
-        })
-    };
+//                                 let mission_data = mission_data.clone();
+//                                 // Invoke the Tauri command with the file content
+//                                 spawn_local(async move {
+//                                     //let mission_data = mission_data.clone();
+//                                     let file_data = MissionData {
+//                                         sqm: text,
+//                                         players: Vec::new(),
+//                                     };
+//                                     let val = to_value(&file_data).unwrap();
+//                                     let x = invoke("inventory_view", val).await;
+//                                     info!(
+//                                         "{:#?}",
+//                                         serde_wasm_bindgen::from_value::<Value>(x.clone()).unwrap()
+//                                     );
+//                                     mission_data.set(from_value(x).unwrap());
+//                                 });
+//                             }) as Box<dyn FnMut(_)>)
+//                         };
+//                         reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
+//                         reader.read_as_text(&file).unwrap();
+//                         onloadend.forget();
+//                     }
+//                 }
+//             }
+//         })
+//     };
 
-    html! {
-        <div>
-            <h1>{ "Inventory Viewer" }</h1>
-            <div class="container">
-                // <textarea
-                //     name="inventory-viewer"
-                //     id="inventory-viewer"
-                //     placeholder="Enter mods here..."
-                //     value={mission_data.sqm.to_string()}
-                // />
-                <input {onchange} type="file" name="mod-preset" id="mod-preset" />
-            </div>
-            <button {onclick}>{ "Go Home" }</button>
-        </div>
-    }
-}
+//     html! {
+//         <div>
+//             <h1>{ "Inventory Viewer" }</h1>
+//             <div class="container">
+//                 // <textarea
+//                 //     name="inventory-viewer"
+//                 //     id="inventory-viewer"
+//                 //     placeholder="Enter mods here..."
+//                 //     value={mission_data.sqm.to_string()}
+//                 // />
+//                 <input {onchange} type="file" name="mod-preset" id="mod-preset" />
+//             </div>
+//             <button {onclick}>{ "Go Home" }</button>
+//         </div>
+//     }
+// }
 
 #[function_component(CommandLineGenerator)]
 pub fn command_line_generator() -> Html {
@@ -274,14 +303,17 @@ pub fn orbat_sorter() -> Html {
 
     html! {
         <main class="container">
-            <textarea
-                type="text"
-                id="convert-input"
-                ref={role_input_ref}
-                placeholder="Enter the list of roles..."
-            />
-            <button class="row" id="submit-button" type="submit" {onclick}>{ "Convert" }</button>
-            <textarea class="row" id="role-msg" value={role_msg.to_string()} />
+            <div class="container column">
+                <p>{ "SL" }</p>
+            </div>
+            // <textarea
+            //     type="text"
+            //     id="convert-input"
+            //     ref={role_input_ref}
+            //     placeholder="Enter the list of roles..."
+            // />
+            // <button class="row" id="submit-button" type="submit" {onclick}>{ "Convert" }</button>
+            // <textarea class="row" id="role-msg" value={role_msg.to_string()} />
         </main>
     }
 }
@@ -297,7 +329,7 @@ pub fn switch(routes: Route) -> Html {
         Route::Home => html! { <Home /> },
         Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::ORBATSorter => html! { <ORBATSorter /> },
-        Route::InventoryViewer => html! { <InventoryViewer /> },
+        // Route::InventoryViewer => html! { <InventoryViewer /> },
     }
 }
 
