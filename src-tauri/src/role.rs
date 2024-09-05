@@ -7,6 +7,7 @@ pub enum Role {
 
     #[strum(serialize = "ZH", serialize = "Zeus Helper", serialize = "Zeus Help")]
     #[strum(ascii_case_insensitive)]
+    #[strum(to_string = "ZH")]
     ZeusHelper,
 
     #[strum(serialize = "CL", serialize = "Company Leader")]
@@ -72,7 +73,8 @@ pub enum Role {
         serialize = "Engineer"
     )]
     #[strum(ascii_case_insensitive)]
-    Engineer,
+    #[strum(to_string = "ENG")]
+    Eng,
 
     #[strum(ascii_case_insensitive)]
     #[strum(to_string = "EOD")]
