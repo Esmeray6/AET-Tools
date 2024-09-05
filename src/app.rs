@@ -303,17 +303,17 @@ pub fn orbat_sorter() -> Html {
 
     html! {
         <main class="container">
-            <div class="container column">
-                <p>{ "SL" }</p>
-            </div>
-            // <textarea
-            //     type="text"
-            //     id="convert-input"
-            //     ref={role_input_ref}
-            //     placeholder="Enter the list of roles..."
-            // />
-            // <button class="row" id="submit-button" type="submit" {onclick}>{ "Convert" }</button>
-            // <textarea class="row" id="role-msg" value={role_msg.to_string()} />
+            // <div class="container column">
+            //     <p>{ "SL" }</p>
+            // </div>
+            <textarea
+                type="text"
+                id="convert-input"
+                ref={role_input_ref}
+                placeholder="Enter the list of roles..."
+            />
+            <button class="row" id="submit-button" type="submit" {onclick}>{ "Convert" }</button>
+            <textarea class="row" id="role-msg" value={role_msg.to_string()} />
         </main>
     }
 }
