@@ -1,3 +1,8 @@
+#![allow(
+    non_camel_case_types,
+    clippy::upper_case_acronyms,
+    clippy::upper_case_acronyms
+)]
 use strum_macros::EnumString;
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, EnumString)]
@@ -5,14 +10,19 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     Zeus,
 
-    #[strum(serialize = "ZH", serialize = "Zeus Helper", serialize = "Zeus Help")]
+    #[strum(
+        serialize = "ZH",
+        serialize = "Zeus Helper",
+        serialize = "Zeus Help",
+        serialize = "ZeusHelp",
+        serialize = "ZeusHelper"
+    )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "ZH")]
-    ZeusHelper,
+    ZH,
 
     #[strum(serialize = "CL", serialize = "Company Leader")]
     #[strum(ascii_case_insensitive)]
-    Coy,
+    COY,
 
     #[strum(
         serialize = "PL",
@@ -26,11 +36,12 @@ pub enum Role {
         serialize = "PSgt",
         serialize = "Platoon Sergeant",
         serialize = "Platoon 2iC",
-        serialize = "Plt 2iC"
+        serialize = "Plt 2iC",
+        serialize = "P_Sgt",
+        serialize = "P Sgt"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "P_Sgt")]
-    PSgt,
+    P_Sgt,
 
     #[strum(serialize = "SL", serialize = "Squad Leader")]
     #[strum(ascii_case_insensitive)]
@@ -49,12 +60,10 @@ pub enum Role {
     TL,
 
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "RTO")]
-    Rto,
+    RTO,
 
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "JTAC")]
-    Jtac,
+    JTAC,
 
     #[strum(
         serialize = "MED",
@@ -73,12 +82,10 @@ pub enum Role {
         serialize = "Engineer"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "ENG")]
-    Eng,
+    ENG,
 
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "EOD")]
-    Eod,
+    EOD,
 
     #[strum(
         serialize = "DEMO",
@@ -86,8 +93,7 @@ pub enum Role {
         serialize = "Demolitions Expert"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "DEMO")]
-    Demo,
+    DEMO,
 
     #[strum(
         serialize = "MG",
@@ -105,8 +111,7 @@ pub enum Role {
         serialize = "Assistant MG"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "AMG")]
-    Amg,
+    AMG,
 
     #[strum(
         serialize = "AR",
@@ -125,8 +130,7 @@ pub enum Role {
         serialize = "Assistant Autorifleman"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "AAR")]
-    Aar,
+    AAR,
 
     #[strum(
         serialize = "AT",
@@ -158,8 +162,7 @@ pub enum Role {
         serialize = "Assistant AT"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "AAT")]
-    Aat,
+    AAT,
 
     #[strum(serialize = "AA", serialize = "Anti-Air", serialize = "Anti Air")]
     #[strum(ascii_case_insensitive)]
@@ -178,8 +181,7 @@ pub enum Role {
         serialize = "Assistant AA"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "AAA")]
-    Aaa,
+    AAA,
 
     #[strum(serialize = "Pointman", serialize = "Point")]
     #[strum(ascii_case_insensitive)]
@@ -187,8 +189,7 @@ pub enum Role {
 
     #[strum(serialize = "DMR", serialize = "Marksman")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "DMR")]
-    Dmr,
+    DMR,
 
     #[strum(serialize = "GL", serialize = "Grenadier")]
     #[strum(ascii_case_insensitive)]
@@ -200,8 +201,7 @@ pub enum Role {
         serialize = "Ammo Bitch"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "AMMO")]
-    Ammo,
+    AMMO,
 
     #[strum(
         serialize = "Rifleman",
@@ -214,17 +214,14 @@ pub enum Role {
 
     #[strum(serialize = "Sniper Team", serialize = "Sniper_Team")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "Sniper_Team")]
     SniperTeam,
 
     #[strum(serialize = "MG Team", serialize = "MG_Team")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "MG_Team")]
     MGTeam,
 
     #[strum(serialize = "Artillery", serialize = "ARTY")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "ARTY")]
     Artillery,
 
     #[strum(serialize = "Logistics", serialize = "LOGI")]
@@ -233,13 +230,11 @@ pub enum Role {
 
     #[strum(serialize = "Main Battle Tank", serialize = "MBT")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "MBT")]
-    Mbt,
+    MBT,
 
     #[strum(serialize = "Infantry Fighting Vehicle", serialize = "IFV")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "IFV")]
-    Ifv,
+    IFV,
 
     #[strum(
         serialize = "Armored Personnel Carrier",
@@ -247,8 +242,7 @@ pub enum Role {
         serialize = "APC"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "APC")]
-    Apc,
+    APC,
 
     #[strum(
         serialize = "Mine-Resistant Ambush Protected",
@@ -256,8 +250,7 @@ pub enum Role {
         serialize = "MRAP"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "MRAP")]
-    Mrap,
+    MRAP,
 
     #[strum(
         serialize = "Close Air Support",
@@ -265,8 +258,7 @@ pub enum Role {
         serialize = "CAS"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "CAS")]
-    Cas,
+    CAS,
 
     #[strum(
         serialize = "Combat Air Patrol",
@@ -274,8 +266,7 @@ pub enum Role {
         serialize = "CAP"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "CAP")]
-    Cap,
+    CAP,
 
     #[strum(
         serialize = "Vertical Take-Off and Landing",
@@ -284,8 +275,7 @@ pub enum Role {
         serialize = "VTOL"
     )]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "VTOL")]
-    Vtol,
+    VTOL,
 
     #[strum(
         serialize = "CAS Helicopter",
@@ -302,6 +292,5 @@ pub enum Role {
 
     #[strum(serialize = "Unmanned Aerial Vehicle", serialize = "UAV")]
     #[strum(ascii_case_insensitive)]
-    #[strum(to_string = "UAV")]
-    Uav,
+    UAV,
 }
