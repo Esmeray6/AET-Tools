@@ -3,12 +3,7 @@
 
 mod role;
 
-use std::{
-    collections::HashMap,
-    env::current_dir,
-    fs,
-    str::FromStr,
-};
+use std::{collections::HashMap, env::current_dir, fs, str::FromStr};
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
