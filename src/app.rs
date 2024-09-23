@@ -260,11 +260,15 @@ pub fn command_line_generator() -> Html {
 
 #[function_component(ORBATSorter)]
 pub fn orbat_sorter() -> Html {
+    let navigator = use_navigator().unwrap();
+    let gohome = Callback::from(move |_| navigator.push(&Route::Home));
+
     let role_input_ref = use_node_ref();
 
     let rolelist = use_state(String::new);
 
     let role_msg = use_state(String::new);
+
     {
         let role_msg = role_msg.clone();
         let rolelist = rolelist.clone();
@@ -303,17 +307,19 @@ pub fn orbat_sorter() -> Html {
 
     html! {
         <main class="container">
-            // <div class="container column">
-            //     <p>{ "SL" }</p>
-            // </div>
-            <textarea
-                type="text"
-                id="convert-input"
-                ref={role_input_ref}
-                placeholder="Enter the list of roles..."
-            />
-            <button class="row" id="submit-button" type="submit" {onclick}>{ "Convert" }</button>
-            <textarea class="row" id="role-msg" value={role_msg.to_string()} />
+            <div class="container">
+                <textarea
+                    type="text"
+                    id="convert-input"
+                    ref={role_input_ref}
+                    placeholder="Enter the list of roles..."
+                />
+                <button class="row" id="submit-button" type="submit" {onclick}>
+                    { "Convert" }
+                </button>
+                <textarea class="row" id="role-msg" value={role_msg.to_string()} />
+            </div>
+            <button id="go-home-button" onclick={gohome} type="button">{ "Go Home" }</button>
         </main>
     }
 }

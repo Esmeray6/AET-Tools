@@ -150,3 +150,8 @@ body {
   width: 400px;
   height: 200px;
 }
+
+#go-home-button {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
