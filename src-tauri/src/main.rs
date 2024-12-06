@@ -196,17 +196,32 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
 
     let mut roles = roles
         .into_iter()
-        .map(|item| format!("{} {:?}", item.0, item.1))
-        .collect::<Vec<String>>();
+        .map(|item| (item.0.to_string(), item.1))
+        .collect::<Vec<(String, Role)>>();
 
-    let zeus_present = dbg!(roles
-        .iter()
-        .any(|role| role.to_lowercase().contains("zeus")));
+    let zeus_present =
+        dbg!(roles
+            .iter()
+            .any(|role| format!("{:?}", role.1).to_string().to_lowercase().contains("zeus")));
     if !zeus_present {
-        roles.insert(0, "2x Zeus".to_string());
+        roles.insert(0, ("2x".to_string(), Role::Zeus));
     }
 
-    Ok(dbg!(roles.join("\n").trim().to_string()))
+    let emojis = roles
+        .iter()
+        .map(|role| format!(":{:?}:", role.1))
+        .collect::<Vec<String>>();
+
+    Ok(dbg!(format!(
+        "{}\n\n{}",
+        roles
+            .iter()
+            .map(|role| { format!("{} {:?}", role.0, role.1) })
+            .collect::<Vec<String>>()
+            .join("\n")
+            .trim(),
+        emojis.join(" ")
+    )))
 }
 
 // #[tauri::command]

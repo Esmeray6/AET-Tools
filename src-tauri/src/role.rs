@@ -3,9 +3,9 @@
     clippy::upper_case_acronyms,
     clippy::upper_case_acronyms
 )]
-use strum_macros::EnumString;
+use strum_macros::{Display, EnumString};
 
-#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, EnumString)]
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, EnumString, Display)]
 pub enum Role {
     #[strum(ascii_case_insensitive)]
     Zeus,
@@ -212,85 +212,86 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     Rifleman,
 
-    #[strum(serialize = "Sniper Team", serialize = "Sniper_Team")]
+    #[strum(serialize = "Sniper_Team", serialize = "Sniper Team")]
     #[strum(ascii_case_insensitive)]
     SniperTeam,
 
-    #[strum(serialize = "MG Team", serialize = "MG_Team")]
+    #[strum(serialize = "MG_Team", serialize = "MG Team")]
     #[strum(ascii_case_insensitive)]
     MGTeam,
 
-    #[strum(serialize = "Artillery", serialize = "ARTY")]
+    #[strum(serialize = "ARTY", serialize = "Artillery")]
     #[strum(ascii_case_insensitive)]
     Artillery,
 
-    #[strum(serialize = "Logistics", serialize = "LOGI")]
+    #[strum(serialize = "LOGI", serialize = "Logistics")]
     #[strum(ascii_case_insensitive)]
     Logistics,
 
-    #[strum(serialize = "Main Battle Tank", serialize = "MBT")]
+    #[strum(serialize = "MBT", serialize = "Main Battle Tank")]
     #[strum(ascii_case_insensitive)]
     MBT,
 
-    #[strum(serialize = "Infantry Fighting Vehicle", serialize = "IFV")]
+    #[strum(serialize = "IFV", serialize = "Infantry Fighting Vehicle")]
     #[strum(ascii_case_insensitive)]
     IFV,
 
     #[strum(
+        serialize = "APC",
         serialize = "Armored Personnel Carrier",
-        serialize = "Armoured Personnel Carrier",
-        serialize = "APC"
+        serialize = "Armoured Personnel Carrier"
     )]
     #[strum(ascii_case_insensitive)]
     APC,
 
     #[strum(
+        serialize = "MRAP",
         serialize = "Mine-Resistant Ambush Protected",
-        serialize = "Mine Resistant Ambush Protected",
-        serialize = "MRAP"
+        serialize = "Mine Resistant Ambush Protected"
     )]
     #[strum(ascii_case_insensitive)]
     MRAP,
 
     #[strum(
+        serialize = "CAS",
         serialize = "Close Air Support",
-        serialize = "Air Support",
-        serialize = "CAS"
+        serialize = "Air Support"
     )]
     #[strum(ascii_case_insensitive)]
     CAS,
 
     #[strum(
+        serialize = "CAP",
         serialize = "Combat Air Patrol",
-        serialize = "Air Patrol",
-        serialize = "CAP"
+        serialize = "Air Patrol"
     )]
     #[strum(ascii_case_insensitive)]
     CAP,
 
     #[strum(
+        serialize = "VTOL",
         serialize = "Vertical Take-Off and Landing",
         serialize = "Vertical Take-Off Landing",
-        serialize = "Vertical Take-Off & Landing",
-        serialize = "VTOL"
+        serialize = "Vertical Take-Off & Landing"
     )]
     #[strum(ascii_case_insensitive)]
     VTOL,
 
     #[strum(
-        serialize = "CAS Helicopter",
-        serialize = "Rotary CAS",
+        serialize = "CAS_Heli",
         serialize = "CASHeli",
-        serialize = "CAS Heli"
+        serialize = "CAS Heli",
+        serialize = "CAS Helicopter",
+        serialize = "Rotary CAS"
     )]
     #[strum(ascii_case_insensitive)]
-    CASHeli,
+    CAS_Heli,
 
     #[strum(serialize = "Transport")]
     #[strum(ascii_case_insensitive)]
     Transport,
 
-    #[strum(serialize = "Unmanned Aerial Vehicle", serialize = "UAV")]
+    #[strum(serialize = "UAV", serialize = "Unmanned Aerial Vehicle")]
     #[strum(ascii_case_insensitive)]
     UAV,
 }
