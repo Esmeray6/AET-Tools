@@ -199,10 +199,10 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
         .map(|item| (item.0.to_string(), item.1))
         .collect::<Vec<(String, Role)>>();
 
-    let zeus_present =
-        dbg!(roles
-            .iter()
-            .any(|role| format!("{:?}", role.1).to_string().to_lowercase().contains("zeus")));
+    let zeus_present = dbg!(roles.iter().any(|role| format!("{:?}", role.1)
+        .to_string()
+        .to_lowercase()
+        .contains("zeus")));
     if !zeus_present {
         roles.insert(0, ("2x".to_string(), Role::Zeus));
     }
@@ -340,6 +340,9 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,

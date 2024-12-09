@@ -8,21 +8,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5.2", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1.6.7", features = [
-    "dialog-open",
-    "updater",
-    "shell-open",
-    "process-command-api",
-] }
+tauri = { version = "2.1.1", features = [] }
 serde = { version = "1.0.203", features = ["derive"] }
-serde_json = "1.0.117"
+serde_json = "1.0.133"
 scraper = "0.21.0"
-strum_macros = "0.26.2"
-strum = { version = "0.26.2", features = ["derive", "strum_macros"] }
+strum_macros = "0.26.4"
+strum = { version = "0.26.3", features = ["derive", "strum_macros"] }
+tauri-plugin-shell = "2.0.2"
+tauri-plugin-dialog = "2.0.4"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2"

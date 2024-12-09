@@ -9,7 +9,12 @@ use yew_router::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+    // invoke without arguments
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"], js_name = invoke)]
+    async fn invoke_without_args(cmd: &str) -> JsValue;
+
+    // invoke with arguments (default)
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
     async fn invoke(cmd: &str, args: JsValue) -> JsValue;
 }
 
@@ -249,8 +254,9 @@ pub fn command_line_generator() -> Html {
                     id="command-line"
                     placeholder="Enter mods here..."
                     value={modlist.mods.to_string()}
+
                 />
-                <input {onchange} type="file" name="mod-preset" id="mod-preset" />
+                <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
             <button {onclick}>{ "Go Home" }</button>

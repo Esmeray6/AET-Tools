@@ -2,78 +2,60 @@
   "build": {
     "beforeDevCommand": "trunk serve",
     "beforeBuildCommand": "trunk build",
-    "devPath": "http://localhost:1422",
-    "distDir": "../dist",
-    "withGlobalTauri": true
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1422"
   },
-  "package": {
-    "productName": "aet-tools",
-    "version": "1.0.5"
+  "bundle": {
+    "active": true,
+    "targets": [
+      "msi"
+    ],
+    "publisher": "Esmeray",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "ignored_mods.txt",
+      "CfgConvert.exe",
+      "MissionDerap.bat",
+      "config2json.exe"
+    ],
+    "createUpdaterArtifacts": "v1Compatible"
   },
-  "tauri": {
+  "productName": "aet-tools",
+  "mainBinaryName": "aet-tools",
+  "version": "1.0.5",
+  "identifier": "com.esmeray.aet-tools",
+  "plugins": {
     "updater": {
-      "active": true,
-      "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJEQjc5RkVBOTU0QkE5RQpSV1NldWxTcC9ubmJBdGNLMGloSEUzNCtFREp3R1haWjdqc3VwQ0hReTdXWm01dHVmZ2EzRGVOSwo=",
       "windows": {
         "installMode": "passive",
         "installerArgs": []
       },
       "endpoints": [
         "https://github.com/Esmeray6/AET-Tools/releases/latest/download/latest.json"
-      ]
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJEQjc5RkVBOTU0QkE5RQpSV1NldWxTcC9ubmJBdGNLMGloSEUzNCtFREp3R1haWjdqc3VwQ0hReTdXWm01dHVmZ2EzRGVOSwo="
+    }
+  },
+  "app": {
+    "security": {
+      "csp": null
     },
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true,
-        "scope": [
-          {
-            "name": "config2json",
-            "cmd": "./config2json"
-          }
-        ]
-      },
-      "dialog": {
-        "all": false,
-        "ask": false,
-        "confirm": false,
-        "message": false,
-        "open": true,
-        "save": false
-      }
-    },
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "AET Tools",
         "width": 1024,
         "height": 768,
         "center": true,
-        "theme": "Dark"
+        "theme": "Dark",
+        "useHttpsScheme": true
       }
-    ],
-    "security": {
-      "csp": null
-    },
-    "bundle": {
-      "active": true,
-      "targets": ["msi", "updater"],
-      "identifier": "com.esmeray.aet-tools",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [
-        "ignored_mods.txt",
-        "CfgConvert.exe",
-        "MissionDerap.bat",
-        "config2json.exe"
-      ],
-      "publisher": "Esmeray"
-    }
+    ]
   }
 }
