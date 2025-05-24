@@ -291,9 +291,9 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     CAS_Heli,
 
-    #[strum(serialize = "Transport")]
+    #[strum(serialize = "Transport", serialize = "Transport Heli", serialize = "Transport_Heli", serialize = "Transport Helo", serialize = "Transport_Helo", serialize = "Transport Helicopter", serialize = "Transport_Helicopter")]
     #[strum(ascii_case_insensitive)]
-    Transport,
+    Transport_Heli,
 
     #[strum(serialize = "UAV", serialize = "Unmanned Aerial Vehicle")]
     #[strum(ascii_case_insensitive)]
