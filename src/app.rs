@@ -32,6 +32,8 @@ pub enum Route {
     CommandLineGenerator,
     #[at("/orbat_sorter")]
     ORBATSorter,
+    #[at("/orbat_generator")]
+    ORBATGenerator,
     // #[at("/inventory_viewer")]
     // InventoryViewer,
     #[not_found]
@@ -254,7 +256,6 @@ pub fn command_line_generator() -> Html {
                     id="command-line"
                     placeholder="Enter mods here..."
                     value={modlist.mods.to_string()}
-
                 />
                 <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
@@ -341,7 +342,7 @@ pub fn switch(routes: Route) -> Html {
         Route::Home => html! { <Home /> },
         Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::ORBATSorter => html! { <ORBATSorter /> },
-        // Route::InventoryViewer => html! { <InventoryViewer /> },
+        Route::ORBATGenerator => html! {},
     }
 }
 
