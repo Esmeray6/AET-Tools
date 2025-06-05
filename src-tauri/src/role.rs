@@ -212,9 +212,13 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     Rifleman,
 
-    #[strum(serialize = "Sniper_Team", serialize = "Sniper Team")]
+    #[strum(
+        serialize = "Sniper_Team",
+        serialize = "Sniper Team",
+        serialize = "Sniper"
+    )]
     #[strum(ascii_case_insensitive)]
-    SniperTeam,
+    Sniper,
 
     #[strum(serialize = "MG_Team", serialize = "MGTeam", serialize = "MG Team")]
     #[strum(ascii_case_insensitive)]
@@ -226,11 +230,11 @@ pub enum Role {
 
     #[strum(serialize = "ARTY", serialize = "Artillery")]
     #[strum(ascii_case_insensitive)]
-    Artillery,
+    ARTY,
 
     #[strum(serialize = "LOGI", serialize = "Logistics")]
     #[strum(ascii_case_insensitive)]
-    Logistics,
+    LOGI,
 
     #[strum(serialize = "MBT", serialize = "Main Battle Tank")]
     #[strum(ascii_case_insensitive)]
@@ -291,7 +295,15 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     CAS_Heli,
 
-    #[strum(serialize = "Transport", serialize = "Transport Heli", serialize = "Transport_Heli", serialize = "Transport Helo", serialize = "Transport_Helo", serialize = "Transport Helicopter", serialize = "Transport_Helicopter")]
+    #[strum(
+        serialize = "Transport",
+        serialize = "Transport Heli",
+        serialize = "Transport_Heli",
+        serialize = "Transport Helo",
+        serialize = "Transport_Helo",
+        serialize = "Transport Helicopter",
+        serialize = "Transport_Helicopter"
+    )]
     #[strum(ascii_case_insensitive)]
     Transport_Heli,
 
