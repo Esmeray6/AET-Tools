@@ -19,12 +19,9 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "ignored_mods.txt",
-      "CfgConvert.exe",
-      "MissionDerap.bat",
-      "config2json.exe"
+      "ignored_mods.txt"
     ],
-    "createUpdaterArtifacts": "v1Compatible"
+    "createUpdaterArtifacts": true
   },
   "productName": "aet-tools",
   "mainBinaryName": "aet-tools",
