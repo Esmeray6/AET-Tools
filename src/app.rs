@@ -58,12 +58,13 @@ struct MissionData {
     players: Vec<Value>,
 }
 
-pub const ROLES: [&str; 40] = [
+// Probably going to be useful in ORBATGenerator.
+pub const ROLES: [&str; 41] = [
     "Zeus",
     "ZH",
-    "Coy",
+    "COY",
     "PL",
-    "P_Sgt",
+    "PSgt",
     "SL",
     "TL",
     "RTO",
@@ -85,7 +86,8 @@ pub const ROLES: [&str; 40] = [
     "GL",
     "AMMO",
     "Rifleman",
-    "Sniper_Team",
+    "Sniper",
+    "Spotter",
     "MG_Team",
     "ARTY",
     "LOGI",
@@ -96,7 +98,7 @@ pub const ROLES: [&str; 40] = [
     "CAS",
     "CAP",
     "VTOL",
-    "CASHeli",
+    "CAS_Heli",
     "Transport",
     "UAV",
 ];
@@ -111,90 +113,37 @@ pub fn home() -> Html {
     let navig = navigator.clone();
     let orbat_sorter_redirect = Callback::from(move |_| navig.push(&Route::ORBATSorter));
 
-    // let navig = navigator.clone();
-    // let inventory_viewer_redirect = Callback::from(move |_| navig.push(&Route::InventoryViewer));
+    let navig = navigator.clone();
+    let orbat_generator_redirect = Callback::from(move |_| navig.push(&Route::ORBATGenerator));
 
     html! {
-        <div class="container">
+        <div class="container column">
             <h1>{ "Antistasi Event Team Tools" }</h1>
             <button onclick={command_line_redirect}>{ "Command Line Generator" }</button>
             <button onclick={orbat_sorter_redirect}>{ "ORBAT Sorter" }</button>
-            // <button onclick={inventory_viewer_redirect}>{ "Inventory Viewer" }</button>
+            <button onclick={orbat_generator_redirect}>{ "ORBAT Generator" }</button>
         </div>
     }
 }
 
-// #[function_component(InventoryViewer)]
-// pub fn inventory_viewer() -> Html {
-//     let navigator = use_navigator().unwrap();
+#[function_component(ORBATGenerator)]
+pub fn orbat_generator() -> Html {
+    let navigator = use_navigator().unwrap();
+    let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
-//     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
-
-//     let mission_data = use_state(|| MissionData {
-//         sqm: String::new(),
-//         players: Vec::new(),
-//     });
-
-//     let onchange = {
-//         let mission_data = mission_data.clone();
-//         Callback::from(move |event: Event| {
-//             let target: Option<EventTarget> = event.target();
-//             let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
-
-//             if let Some(input) = input {
-//                 if let Some(files) = input.files() {
-//                     if let Some(file) = files.get(0) {
-//                         let reader = FileReader::new().unwrap();
-//                         let onloadend = {
-//                             let mission_data = mission_data.clone();
-//                             Closure::wrap(Box::new(move |event: Event| {
-//                                 let reader =
-//                                     event.target().unwrap().dyn_into::<FileReader>().unwrap();
-//                                 let text = reader.result().unwrap().as_string().unwrap();
-
-//                                 let mission_data = mission_data.clone();
-//                                 // Invoke the Tauri command with the file content
-//                                 spawn_local(async move {
-//                                     //let mission_data = mission_data.clone();
-//                                     let file_data = MissionData {
-//                                         sqm: text,
-//                                         players: Vec::new(),
-//                                     };
-//                                     let val = to_value(&file_data).unwrap();
-//                                     let x = invoke("inventory_view", val).await;
-//                                     info!(
-//                                         "{:#?}",
-//                                         serde_wasm_bindgen::from_value::<Value>(x.clone()).unwrap()
-//                                     );
-//                                     mission_data.set(from_value(x).unwrap());
-//                                 });
-//                             }) as Box<dyn FnMut(_)>)
-//                         };
-//                         reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
-//                         reader.read_as_text(&file).unwrap();
-//                         onloadend.forget();
-//                     }
-//                 }
-//             }
-//         })
-//     };
-
-//     html! {
-//         <div>
-//             <h1>{ "Inventory Viewer" }</h1>
-//             <div class="container">
-//                 // <textarea
-//                 //     name="inventory-viewer"
-//                 //     id="inventory-viewer"
-//                 //     placeholder="Enter mods here..."
-//                 //     value={mission_data.sqm.to_string()}
-//                 // />
-//                 <input {onchange} type="file" name="mod-preset" id="mod-preset" />
-//             </div>
-//             <button {onclick}>{ "Go Home" }</button>
-//         </div>
-//     }
-// }
+    html! {
+        <div>
+            <h1>{ "ORBAT Generator" }</h1>
+            <div class="container row">
+                { ROLES.into_iter().map(|role| html!{<div key={role}>
+                <p class="role-name">{role}</p>
+                <input type="number" id={role}/>
+                </div>}).collect::<Html>() }
+            </div>
+            <button {onclick}>{ "Go Home" }</button>
+        </div>
+    }
+}
 
 #[function_component(CommandLineGenerator)]
 pub fn command_line_generator() -> Html {
@@ -248,7 +197,7 @@ pub fn command_line_generator() -> Html {
     };
 
     html! {
-        <div>
+        <div class="container">
             <h1>{ "Command Line Generator" }</h1>
             <div class="container">
                 <textarea
@@ -260,7 +209,7 @@ pub fn command_line_generator() -> Html {
                 <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
-            <button {onclick}>{ "Go Home" }</button>
+            <button id="go-home-button" {onclick}>{ "Go Home" }</button>
         </div>
     }
 }
@@ -342,7 +291,7 @@ pub fn switch(routes: Route) -> Html {
         Route::Home => html! { <Home /> },
         Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::ORBATSorter => html! { <ORBATSorter /> },
-        Route::ORBATGenerator => html! {},
+        Route::ORBATGenerator => html! { <ORBATGenerator /> },
     }
 }
 
