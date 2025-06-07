@@ -213,12 +213,16 @@ pub enum Role {
     Rifleman,
 
     #[strum(
-        serialize = "Sniper_Team",
-        serialize = "Sniper Team",
         serialize = "Sniper"
     )]
     #[strum(ascii_case_insensitive)]
     Sniper,
+
+    #[strum(
+        serialize = "Spotter",
+    )]
+    #[strum(ascii_case_insensitive)]
+    Spotter,
 
     #[strum(serialize = "MG_Team", serialize = "MGTeam", serialize = "MG Team")]
     #[strum(ascii_case_insensitive)]
