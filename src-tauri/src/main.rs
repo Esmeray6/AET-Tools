@@ -30,91 +30,6 @@ struct ModData {
     missing_mods: String,
 }
 
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Entity {
-//     #[serde(alias = "dataType")]
-//     data_type: String,
-//     #[serde(alias = "Attributes")]
-//     attributes: Option<EntityAttributes>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct EntityAttributes {
-//     rank: Option<String>,
-//     description: Option<String>,
-//     #[serde(alias = "isPlayable")]
-//     is_playable: Option<u8>,
-//     #[serde(alias = "isPlayer")]
-//     is_player: Option<u8>,
-//     #[serde(alias = "Inventory")]
-//     inventory: EntityInventory,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct EntityInventory {
-//     primary_weapon: Option<Weapon>,
-//     handgun: Option<Weapon>,
-//     secondary_weapon: Option<Weapon>,
-//     uniform: Option<Container>,
-//     vest: Option<Container>,
-//     backpack: Option<Container>,
-//     binocular: Option<Item>,
-//     compass: Option<String>,
-//     gps: Option<String>,
-//     map: Option<String>,
-//     radio: Option<String>,
-//     watch: Option<String>,
-//     headgear: Option<String>,
-//     goggles: Option<String>,
-//     hmd: Option<String>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Weapon {
-//     name: Option<String>,
-//     optics: Option<String>,
-//     muzzle: Option<String>,
-//     flashlight: Option<String>,
-//     firemode: Option<String>,
-//     #[serde(alias = "primaryMuzzleMag")]
-//     primary_muzzle_mag: Option<Item>,
-//     #[serde(alias = "secondaryMuzzleMag")]
-//     secondary_muzzle_mag: Option<Item>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Item {
-//     name: String,
-//     count: Option<u64>,
-//     #[serde(alias = "ammoLeft")]
-//     ammo_left: Option<u64>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Container {
-//     #[serde(alias = "typeName")]
-//     type_name: String,
-//     #[serde(alias = "isBackpack")]
-//     is_backpack: Option<u64>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct MissionSource {
-//     #[serde(alias = "Entities")]
-//     entities: Value,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct MissionData {
-//     sqm: String,
-//     players: Vec<Entity>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct MissionPlayers {
-//     players: Vec<Entity>,
-// }
-
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
@@ -179,6 +94,13 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
 }
 
 #[tauri::command]
+async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
+    dbg!(&orbat);
+
+    Ok(format!("{:#?}", orbat))
+}
+
+#[tauri::command]
 async fn orbat_convert(orbat: String) -> Result<String, String> {
     let mut roles = vec![];
 
@@ -232,7 +154,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            // inventory_view
+            orbat_generate
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
