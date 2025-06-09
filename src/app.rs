@@ -193,20 +193,23 @@ pub fn orbat_generator() -> Html {
         <div>
             <h1>{ "ORBAT Generator" }</h1>
             <div class="container row">
-                { ROLES.into_iter().map(|role| html!{<div key={role}>
-                <p class="role-name">{role}</p>
-                <input type="number" id={role}/>
-                </div>}).collect::<Html>() }
+                { ROLES.into_iter().map(|role| html_nested! {
+                    <div key={role}>
+                        <p class="role-name">{role}</p>
+                        <input type="number" id={role}/>
+                    </div>
+                }).collect::<Html>() }
             </div>
             <div class="container column">
-                <button {onclick}>{ "Create ORBAT" }</button>
+                <button id="create-orbat-button" {onclick}>{ "Create ORBAT" }</button>
                 <textarea
                     name="generated-orbat"
                     id="generated-orbat"
-                    placeholder="Enter mods here..."
+                    placeholder="Final ORBAT here..."
+                    readonly=true
                     value={role_msg.to_string()}
                 />
-                <button onclick={go_home}>{ "Go Home" }</button>
+                <button id="go-home-button" onclick={go_home}>{ "Go Home" }</button>
             </div>
         </div>
     }
@@ -331,8 +334,8 @@ pub fn orbat_sorter() -> Html {
     };
 
     html! {
-        <main class="container">
-            <div class="container">
+        <main class="container column">
+            <div class="container column">
                 <textarea
                     type="text"
                     id="convert-input"
