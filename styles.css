@@ -150,8 +150,8 @@ body {
 }
 
 #convert-input, #role-msg, #generated-orbat {
-  width: 400px;
-  height: 200px;
+  width: 600px;
+  height: 400px;
 }
 
 #go-home-button, #create-orbat-button {
