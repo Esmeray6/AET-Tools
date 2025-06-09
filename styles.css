@@ -146,14 +146,15 @@ body {
 
 #submit-button {
   max-height: 50px;
+  margin: 20px auto;
 }
 
-#convert-input, #role-msg {
+#convert-input, #role-msg, #generated-orbat {
   width: 400px;
   height: 200px;
 }
 
-#go-home-button {
+#go-home-button, #create-orbat-button {
   margin-top: 20px;
   margin-bottom: 20px;
 }
