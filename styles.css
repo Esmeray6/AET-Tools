@@ -160,7 +160,11 @@ body {
 }
 
 .role-name {
-  margin: 1px 0 1px 0;
+  margin: 1px 0;
+}
+
+.role {
+  margin: 2px 0 0 0;
 }
 
 input[type="number"] {

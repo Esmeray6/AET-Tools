@@ -194,7 +194,7 @@ pub fn orbat_generator() -> Html {
             <h1>{ "ORBAT Generator" }</h1>
             <div class="container row">
                 { ROLES.into_iter().map(|role| html_nested! {
-                    <div key={role}>
+                    <div class="role" key={role}>
                         <p class="role-name">{role}</p>
                         <input type="number" id={role}/>
                     </div>
