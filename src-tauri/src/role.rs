@@ -20,7 +20,7 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     ZH,
 
-    #[strum(serialize = "CL", serialize = "Company Leader")]
+    #[strum(serialize = "COY", serialize = "CL", serialize = "Company Leader")]
     #[strum(ascii_case_insensitive)]
     COY,
 
@@ -212,15 +212,11 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     Rifleman,
 
-    #[strum(
-        serialize = "Sniper"
-    )]
+    #[strum(serialize = "Sniper")]
     #[strum(ascii_case_insensitive)]
     Sniper,
 
-    #[strum(
-        serialize = "Spotter",
-    )]
+    #[strum(serialize = "Spotter")]
     #[strum(ascii_case_insensitive)]
     Spotter,
 
