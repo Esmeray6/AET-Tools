@@ -49,6 +49,8 @@ pub fn home() -> Html {
     let navig = navigator.clone();
     let orbat_generator_redirect = Callback::from(move |_| navig.push(&Route::ORBATGenerator));
 
+    println!("Home");
+
     html! {
         <div class="container column">
             <h1>{ "Antistasi Event Team Tools" }</h1>
@@ -58,7 +60,6 @@ pub fn home() -> Html {
         </div>
     }
 }
-
 
 pub fn switch(routes: Route) -> Html {
     match routes {
