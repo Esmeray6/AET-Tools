@@ -146,20 +146,25 @@ body {
 
 #submit-button {
   max-height: 50px;
+  margin: 20px auto;
 }
 
-#convert-input, #role-msg {
-  width: 400px;
-  height: 200px;
+#convert-input, #role-msg, #generated-orbat {
+  width: 600px;
+  height: 400px;
 }
 
-#go-home-button {
+#go-home-button, #create-orbat-button {
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
 .role-name {
-  margin: 1px 0 1px 0;
+  margin: 1px 0;
+}
+
+.role {
+  margin: 2px 0 0 0;
 }
 
 input[type="number"] {

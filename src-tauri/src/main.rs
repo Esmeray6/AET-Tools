@@ -30,91 +30,6 @@ struct ModData {
     missing_mods: String,
 }
 
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Entity {
-//     #[serde(alias = "dataType")]
-//     data_type: String,
-//     #[serde(alias = "Attributes")]
-//     attributes: Option<EntityAttributes>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct EntityAttributes {
-//     rank: Option<String>,
-//     description: Option<String>,
-//     #[serde(alias = "isPlayable")]
-//     is_playable: Option<u8>,
-//     #[serde(alias = "isPlayer")]
-//     is_player: Option<u8>,
-//     #[serde(alias = "Inventory")]
-//     inventory: EntityInventory,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct EntityInventory {
-//     primary_weapon: Option<Weapon>,
-//     handgun: Option<Weapon>,
-//     secondary_weapon: Option<Weapon>,
-//     uniform: Option<Container>,
-//     vest: Option<Container>,
-//     backpack: Option<Container>,
-//     binocular: Option<Item>,
-//     compass: Option<String>,
-//     gps: Option<String>,
-//     map: Option<String>,
-//     radio: Option<String>,
-//     watch: Option<String>,
-//     headgear: Option<String>,
-//     goggles: Option<String>,
-//     hmd: Option<String>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Weapon {
-//     name: Option<String>,
-//     optics: Option<String>,
-//     muzzle: Option<String>,
-//     flashlight: Option<String>,
-//     firemode: Option<String>,
-//     #[serde(alias = "primaryMuzzleMag")]
-//     primary_muzzle_mag: Option<Item>,
-//     #[serde(alias = "secondaryMuzzleMag")]
-//     secondary_muzzle_mag: Option<Item>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Item {
-//     name: String,
-//     count: Option<u64>,
-//     #[serde(alias = "ammoLeft")]
-//     ammo_left: Option<u64>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct Container {
-//     #[serde(alias = "typeName")]
-//     type_name: String,
-//     #[serde(alias = "isBackpack")]
-//     is_backpack: Option<u64>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct MissionSource {
-//     #[serde(alias = "Entities")]
-//     entities: Value,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct MissionData {
-//     sqm: String,
-//     players: Vec<Entity>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct MissionPlayers {
-//     players: Vec<Entity>,
-// }
-
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
@@ -179,6 +94,22 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
 }
 
 #[tauri::command]
+async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
+    // dbg!(&orbat);
+    let mut roles = vec![];
+
+    for (role, amount) in orbat.iter() {
+        if !role.is_empty() && *amount > 0 {
+            roles.push((amount.to_string(), role.to_owned()));
+        }
+    }
+
+    let roles_emojis_vec = convert_roles(roles);
+
+    Ok(roles_emojis_vec.0.join("\n"))
+}
+
+#[tauri::command]
 async fn orbat_convert(orbat: String) -> Result<String, String> {
     let mut roles = vec![];
 
@@ -186,18 +117,32 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
         let line = line.split_once(" ");
         if let Some(line) = line {
             let (amount, role) = line;
-            dbg!(amount, role);
-            let role_enum = Role::from_str(role).expect("Role unable to be converted");
-            roles.push((amount, role_enum));
+            // let role_enum = Role::from_str(role).expect("Role unable to be converted");
+            roles.push((amount.to_string(), role.to_string()));
         }
     }
+    let (roles_vec, emojis_vec) = convert_roles(roles);
 
+    Ok(dbg!(format!(
+        "{}\n\n{}",
+        roles_vec.join("\n"),
+        emojis_vec.join(" ")
+    )))
+}
+
+fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
+    let mut roles = roles.into_iter().filter_map(
+        |role_tuple|        match Role::from_str(&role_tuple.1) {
+            Ok(role) => {
+                Some((role_tuple.0, role))
+            }
+            Err(error) => {
+                dbg!(role_tuple.0, role_tuple.1, error);
+                None
+            }
+        }
+    ).collect::<Vec<(String, Role)>>();
     roles.sort_by(|first, second| first.1.cmp(&second.1));
-
-    let mut roles = roles
-        .into_iter()
-        .map(|item| (item.0.to_string(), item.1))
-        .collect::<Vec<(String, Role)>>();
 
     let zeus_present = dbg!(roles.iter().any(|role| format!("{:?}", role.1)
         .to_string()
@@ -207,21 +152,15 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
         roles.insert(0, ("2x".to_string(), Role::Zeus));
     }
 
-    let emojis = roles
-        .iter()
-        .map(|role| format!(":{:?}:", role.1))
-        .collect::<Vec<String>>();
+    let mut roles_vec = vec![];
+    let mut emojis_vec = vec![];
 
-    Ok(dbg!(format!(
-        "{}\n\n{}",
-        roles
-            .iter()
-            .map(|role| { format!("{} {:?}", role.0, role.1) })
-            .collect::<Vec<String>>()
-            .join("\n")
-            .trim(),
-        emojis.join(" ")
-    )))
+    for (role_count, role) in roles {
+                roles_vec.push(format!("{} {:?}", role_count, role));
+                emojis_vec.push(format!(":{:?}:", role));
+            }
+
+    (roles_vec, emojis_vec)
 }
 
 fn main() {
@@ -232,7 +171,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            // inventory_view
+            orbat_generate
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

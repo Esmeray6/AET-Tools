@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use log::info;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_wasm_bindgen::{from_value, to_value};
@@ -48,8 +51,13 @@ struct ModData {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct ORBATData {
+struct ORBATConvertData {
     orbat: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ORBATGenerationData {
+    orbat: HashMap<String, u64>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -116,6 +124,8 @@ pub fn home() -> Html {
     let navig = navigator.clone();
     let orbat_generator_redirect = Callback::from(move |_| navig.push(&Route::ORBATGenerator));
 
+    println!("Home");
+
     html! {
         <div class="container column">
             <h1>{ "Antistasi Event Team Tools" }</h1>
@@ -129,18 +139,78 @@ pub fn home() -> Html {
 #[function_component(ORBATGenerator)]
 pub fn orbat_generator() -> Html {
     let navigator = use_navigator().unwrap();
-    let onclick = Callback::from(move |_| navigator.push(&Route::Home));
+    let go_home = Callback::from(move |_| navigator.push(&Route::Home));
+
+    let rolelist: UseStateHandle<HashMap<String, u64>> = use_state(HashMap::new);
+
+    let role_msg: UseStateHandle<String> = use_state(String::new);
+    let role_msg2 = role_msg.clone();
+
+    let onclick = Callback::from(move |_e: MouseEvent| {
+        let rolelist = rolelist.clone();
+        let role_msg = role_msg2.clone();
+        let document = web_sys::window()
+            .expect("No window found")
+            .document()
+            .expect("No document found");
+
+        let mut new_rolelist = (*rolelist).clone();
+        for role in ROLES {
+            // info!("Role: {}", &role);
+            let input = document.get_element_by_id(role);
+            if let Some(number) = input {
+                let value = number
+                    .dyn_ref::<web_sys::HtmlInputElement>()
+                    .and_then(|input| input.value().parse::<u64>().ok())
+                    .unwrap_or(0);
+                new_rolelist.insert(role.to_string(), value);
+            }
+        }
+        info!("New rolelist: {:?}", new_rolelist);
+        let args = to_value(&ORBATGenerationData {
+            orbat: new_rolelist.clone(),
+        })
+        .expect("Failed to serialize ORBATGenerationData");
+        rolelist.set(new_rolelist);
+        let rolelist = rolelist.clone();
+        // _e.prevent_default();
+        info!("Generating ORBAT with roles: {:?}", *rolelist);
+
+        info!("Role list: {:?}", *rolelist);
+        spawn_local(async move {
+            // let rolelist = rolelist.clone();
+            let role_msg = role_msg.clone();
+            // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+            let result = invoke("orbat_generate", args).await;
+            let generated = from_value::<String>(result).unwrap_or_default();
+            // You may want to update a state here with `generated`
+            info!("Generated ORBAT: {}", generated);
+            role_msg.set(generated);
+        });
+    });
 
     html! {
         <div>
             <h1>{ "ORBAT Generator" }</h1>
             <div class="container row">
-                { ROLES.into_iter().map(|role| html!{<div key={role}>
-                <p class="role-name">{role}</p>
-                <input type="number" id={role}/>
-                </div>}).collect::<Html>() }
+                { ROLES.into_iter().map(|role| html_nested! {
+                    <div class="role" key={role}>
+                        <p class="role-name">{role}</p>
+                        <input type="number" id={role}/>
+                    </div>
+                }).collect::<Html>() }
             </div>
-            <button {onclick}>{ "Go Home" }</button>
+            <div class="container column">
+                <button id="create-orbat-button" {onclick}>{ "Create ORBAT" }</button>
+                <textarea
+                    name="generated-orbat"
+                    id="generated-orbat"
+                    placeholder="Final ORBAT here..."
+                    readonly=true
+                    value={role_msg.to_string()}
+                />
+                <button id="go-home-button" onclick={go_home}>{ "Go Home" }</button>
+            </div>
         </div>
     }
 }
@@ -235,7 +305,7 @@ pub fn orbat_sorter() -> Html {
                     return;
                 }
 
-                let args = to_value(&ORBATData {
+                let args = to_value(&ORBATConvertData {
                     orbat: rolelist.to_string(),
                 })
                 .unwrap();
@@ -251,19 +321,21 @@ pub fn orbat_sorter() -> Html {
     let onclick = {
         let rolelist = rolelist.clone();
         let role_input_ref = role_input_ref.clone();
-        dbg!(&rolelist, &role_input_ref);
+        info!("{:?} {:?}", *rolelist, &role_input_ref);
         Callback::from(move |_e: MouseEvent| {
-            // e.prevent_default();
-            rolelist.set(dbg!(role_input_ref
-                .cast::<web_sys::HtmlInputElement>()
-                .unwrap()
-                .value()));
+            // _e.prevent_default();
+            rolelist.set(
+                role_input_ref
+                    .cast::<web_sys::HtmlInputElement>()
+                    .unwrap()
+                    .value(),
+            );
         })
     };
 
     html! {
-        <main class="container">
-            <div class="container">
+        <main class="container column">
+            <div class="container column">
                 <textarea
                     type="text"
                     id="convert-input"
