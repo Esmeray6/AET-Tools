@@ -1,11 +1,12 @@
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::{EventTarget, FileReader, HtmlInputElement};
 use yew::prelude::*;
 use yew_router::prelude::*;
+
+use crate::app::{command_line_generator::CommandLineGenerator, orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter};
+
+mod command_line_generator;
+mod orbat_sorter;
+mod orbat_generator;
 
 #[wasm_bindgen]
 extern "C" {
@@ -16,12 +17,6 @@ extern "C" {
     // invoke with arguments (default)
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
     async fn invoke(cmd: &str, args: JsValue) -> JsValue;
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ModArgs<'a> {
-    modpreset: &'a str,
-    backticks: bool,
 }
 
 #[derive(Clone, Routable, PartialEq)]
@@ -40,68 +35,6 @@ pub enum Route {
     #[at("/404")]
     NotFound,
 }
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ModData {
-    mods: String,
-    missing_mods: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct ORBATData {
-    orbat: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct MissionData {
-    sqm: String,
-    players: Vec<Value>,
-}
-
-// Probably going to be useful in ORBATGenerator.
-pub const ROLES: [&str; 41] = [
-    "Zeus",
-    "ZH",
-    "COY",
-    "PL",
-    "PSgt",
-    "SL",
-    "TL",
-    "RTO",
-    "JTAC",
-    "Medic",
-    "ENG",
-    "EOD",
-    "DEMO",
-    "MG",
-    "AMG",
-    "AR",
-    "AAR",
-    "AT",
-    "AAT",
-    "AA",
-    "AAA",
-    "Pointman",
-    "DMR",
-    "GL",
-    "AMMO",
-    "Rifleman",
-    "Sniper",
-    "Spotter",
-    "MG_Team",
-    "ARTY",
-    "LOGI",
-    "MBT",
-    "IFV",
-    "APC",
-    "MRAP",
-    "CAS",
-    "CAP",
-    "VTOL",
-    "CAS_Heli",
-    "Transport",
-    "UAV",
-];
 
 #[function_component(Home)]
 pub fn home() -> Html {
@@ -126,159 +59,6 @@ pub fn home() -> Html {
     }
 }
 
-#[function_component(ORBATGenerator)]
-pub fn orbat_generator() -> Html {
-    let navigator = use_navigator().unwrap();
-    let onclick = Callback::from(move |_| navigator.push(&Route::Home));
-
-    html! {
-        <div>
-            <h1>{ "ORBAT Generator" }</h1>
-            <div class="container row">
-                { ROLES.into_iter().map(|role| html!{<div key={role}>
-                <p class="role-name">{role}</p>
-                <input type="number" id={role}/>
-                </div>}).collect::<Html>() }
-            </div>
-            <button {onclick}>{ "Go Home" }</button>
-        </div>
-    }
-}
-
-#[function_component(CommandLineGenerator)]
-pub fn command_line_generator() -> Html {
-    let navigator = use_navigator().unwrap();
-
-    let onclick = Callback::from(move |_| navigator.push(&Route::Home));
-
-    let modlist = use_state(|| ModData {
-        mods: String::new(),
-        missing_mods: String::new(),
-    });
-
-    let onchange = {
-        let mod_data = modlist.clone();
-        Callback::from(move |event: Event| {
-            let target: Option<EventTarget> = event.target();
-            let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
-
-            if let Some(input) = input {
-                if let Some(files) = input.files() {
-                    if let Some(file) = files.get(0) {
-                        let reader = FileReader::new().unwrap();
-                        let onloadend = {
-                            let mod_data = mod_data.clone();
-                            Closure::wrap(Box::new(move |event: Event| {
-                                let reader =
-                                    event.target().unwrap().dyn_into::<FileReader>().unwrap();
-                                let text = reader.result().unwrap().as_string().unwrap();
-
-                                let mod_data = mod_data.clone();
-                                // Invoke the Tauri command with the file content
-                                spawn_local(async move {
-                                    //let mod_data = mod_data.clone();
-                                    let file_data = ModArgs {
-                                        modpreset: &text,
-                                        backticks: false,
-                                    };
-                                    let val = to_value(&file_data).unwrap();
-                                    let x = invoke("command_line_convert", val).await;
-                                    mod_data.set(from_value(x).unwrap());
-                                });
-                            }) as Box<dyn FnMut(_)>)
-                        };
-                        reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
-                        reader.read_as_text(&file).unwrap();
-                        onloadend.forget();
-                    }
-                }
-            }
-        })
-    };
-
-    html! {
-        <div class="container">
-            <h1>{ "Command Line Generator" }</h1>
-            <div class="container">
-                <textarea
-                    name="command-line"
-                    id="command-line"
-                    placeholder="Enter mods here..."
-                    value={modlist.mods.to_string()}
-                />
-                <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
-            </div>
-            <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
-            <button id="go-home-button" {onclick}>{ "Go Home" }</button>
-        </div>
-    }
-}
-
-#[function_component(ORBATSorter)]
-pub fn orbat_sorter() -> Html {
-    let navigator = use_navigator().unwrap();
-    let gohome = Callback::from(move |_| navigator.push(&Route::Home));
-
-    let role_input_ref = use_node_ref();
-
-    let rolelist = use_state(String::new);
-
-    let role_msg = use_state(String::new);
-
-    {
-        let role_msg = role_msg.clone();
-        let rolelist = rolelist.clone();
-        let name2 = rolelist.clone();
-        use_effect_with(name2, move |_| {
-            spawn_local(async move {
-                if rolelist.is_empty() {
-                    return;
-                }
-
-                let args = to_value(&ORBATData {
-                    orbat: rolelist.to_string(),
-                })
-                .unwrap();
-                // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-                let new_msg = invoke("orbat_convert", args).await.as_string().unwrap();
-                role_msg.set(new_msg);
-            });
-
-            || {}
-        });
-    }
-
-    let onclick = {
-        let rolelist = rolelist.clone();
-        let role_input_ref = role_input_ref.clone();
-        dbg!(&rolelist, &role_input_ref);
-        Callback::from(move |_e: MouseEvent| {
-            // e.prevent_default();
-            rolelist.set(dbg!(role_input_ref
-                .cast::<web_sys::HtmlInputElement>()
-                .unwrap()
-                .value()));
-        })
-    };
-
-    html! {
-        <main class="container">
-            <div class="container">
-                <textarea
-                    type="text"
-                    id="convert-input"
-                    ref={role_input_ref}
-                    placeholder="Enter the list of roles..."
-                />
-                <button class="row" id="submit-button" type="submit" {onclick}>
-                    { "Convert" }
-                </button>
-                <textarea class="row" id="role-msg" value={role_msg.to_string()} />
-            </div>
-            <button id="go-home-button" onclick={gohome} type="button">{ "Go Home" }</button>
-        </main>
-    }
-}
 
 pub fn switch(routes: Route) -> Html {
     match routes {
