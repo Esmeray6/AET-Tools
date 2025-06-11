@@ -60,8 +60,8 @@ pub fn orbat_sorter() -> Html {
     };
 
     html! {
-        <main class="container">
-            <div class="container">
+        <main class="container column">
+            <div class="container column">
                 <textarea
                     type="text"
                     id="convert-input"

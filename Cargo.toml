@@ -17,6 +17,7 @@ yew-router = "0.18.0"
 wasm-logger = "0.2.0"
 log = { version = "0.4.27", features = ["kv", "kv_serde"] }
 serde_json = { version = "1.0.140", features = ["preserve_order"] }
+yewlish-checkbox = "0.1.12"
 
 [workspace]
 members = ["src-tauri"]

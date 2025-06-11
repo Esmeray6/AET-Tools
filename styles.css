@@ -171,3 +171,8 @@ input[type="number"] {
   width: 100px;
   height: 25px;
 }
+
+#backticks-toggle-label {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}

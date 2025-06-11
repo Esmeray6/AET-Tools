@@ -1,3 +1,4 @@
+use log::info;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
@@ -5,6 +6,7 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::{EventTarget, FileReader, HtmlInputElement};
 use yew::prelude::*;
 use yew_router::prelude::*;
+use yewlish_checkbox::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ModData {
@@ -25,6 +27,7 @@ use crate::app::Route;
 pub fn command_line_generator() -> Html {
     let navigator = use_navigator().unwrap();
 
+    let checked_state = use_state(|| CheckedState::Unchecked);
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
     let modlist = use_state(|| ModData {
@@ -33,8 +36,10 @@ pub fn command_line_generator() -> Html {
     });
 
     let onchange = {
+        let checked_state = checked_state.clone();
         let mod_data = modlist.clone();
         Callback::from(move |event: Event| {
+            let checked_state = checked_state.clone();
             let target: Option<EventTarget> = event.target();
             let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
 
@@ -45,6 +50,7 @@ pub fn command_line_generator() -> Html {
                         let onloadend = {
                             let mod_data = mod_data.clone();
                             Closure::wrap(Box::new(move |event: Event| {
+                                let checked_state = checked_state.clone();
                                 let reader =
                                     event.target().unwrap().dyn_into::<FileReader>().unwrap();
                                 let text = reader.result().unwrap().as_string().unwrap();
@@ -53,9 +59,10 @@ pub fn command_line_generator() -> Html {
                                 // Invoke the Tauri command with the file content
                                 spawn_local(async move {
                                     //let mod_data = mod_data.clone();
+                                    info!("{}", *checked_state);
                                     let file_data = ModArgs {
                                         modpreset: &text,
-                                        backticks: false,
+                                        backticks: matches!(*checked_state, CheckedState::Checked),
                                     };
                                     let val = to_value(&file_data).unwrap();
                                     let x = invoke("command_line_convert", val).await;
@@ -72,16 +79,75 @@ pub fn command_line_generator() -> Html {
         })
     };
 
+    let on_checked_change = {
+        let modlist = modlist.clone();
+        let checked_state = checked_state.clone();
+        Callback::from(move |new_state: CheckedState| {
+            if !modlist.mods.is_empty() {
+                let backticks = matches!(new_state, CheckedState::Checked);
+                let mut new_mods = modlist
+                    .mods
+                    .strip_prefix("```\n")
+                    .unwrap_or(&modlist.mods)
+                    .strip_suffix("\n```")
+                    .unwrap_or(&modlist.mods)
+                    .to_string();
+                new_mods = if backticks {
+                    format!("```\n{}\n```", new_mods)
+                } else {
+                    new_mods
+                };
+                modlist.set(ModData {
+                    mods: new_mods,
+                    missing_mods: modlist.missing_mods.clone(),
+                });
+            }
+            checked_state.set(new_state);
+        })
+    };
+
+    let render_as = Callback::from(|props: CheckboxRenderAsProps| {
+        let is_checked = props.checked == CheckedState::Checked;
+
+        html! {
+            <label
+                id={props.id.clone().map(|checkbox_id| format!("{}-label", checkbox_id))}
+                class={props.class.clone()}
+            >
+                <input
+                    id={props.id}
+                    type="checkbox"
+                    checked={is_checked}
+                    onclick={Callback::from(move |_| props.toggle.emit(()))}
+                    disabled={props.disabled}
+                    required={props.required}
+                    name={props.name.clone()}
+                    value={props.value.clone()}
+                />
+                { for props.children.iter() }
+            </label>
+        }
+    });
+
     html! {
         <div class="container">
             <h1>{ "Command Line Generator" }</h1>
-            <div class="container">
+            <div class="container column">
                 <textarea
                     name="command-line"
                     id="command-line"
                     placeholder="Enter mods here..."
                     value={modlist.mods.to_string()}
                 />
+                <Checkbox
+                    id="backticks-toggle"
+                    render_as={render_as}
+                    default_checked={CheckedState::Unchecked}
+                    checked={(*checked_state).clone()}
+                    on_checked_change={on_checked_change}
+                >
+                    { "Add backticks?" }
+                </Checkbox>
                 <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
