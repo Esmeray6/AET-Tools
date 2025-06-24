@@ -18,9 +18,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "ignored_mods.txt"
-    ],
+    "resources": [],
     "createUpdaterArtifacts": true
   },
   "productName": "aet-tools",
