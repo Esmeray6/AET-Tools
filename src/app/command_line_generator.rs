@@ -12,6 +12,7 @@ use yewlish_checkbox::*;
 struct ModData {
     mods: String,
     missing_mods: String,
+    optional_mods: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -30,9 +31,7 @@ pub fn command_line_generator() -> Html {
     let checked_state = use_state(|| CheckedState::Unchecked);
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
-    let modlist = use_state(|| ModData {
-        mods: String::new(),
-        missing_mods: String::new(),
+    let modlist = use_state(|| ModData {mods:String::new(),missing_mods:String::new(), optional_mods: String::new() 
     });
 
     let onchange = {
@@ -100,6 +99,7 @@ pub fn command_line_generator() -> Html {
                 modlist.set(ModData {
                     mods: new_mods,
                     missing_mods: modlist.missing_mods.clone(),
+                    optional_mods: modlist.optional_mods.clone()
                 });
             }
             checked_state.set(new_state);
@@ -151,6 +151,7 @@ pub fn command_line_generator() -> Html {
                 <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
+            <p id="optional-mods">{ modlist.optional_mods.to_string() }</p>
             <button id="go-home-button" {onclick}>{ "Go Home" }</button>
         </div>
     }
