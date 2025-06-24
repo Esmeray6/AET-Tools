@@ -75,6 +75,7 @@ button {
 button:hover {
   border-color: #396cd8;
 }
+
 button:active {
   border-color: #396cd8;
   background-color: #e8e8e8;
@@ -101,6 +102,7 @@ button {
     color: #cfcfcf;
     background-color: #0f0f0f98;
   }
+
   button:active {
     background-color: #0f0f0f69;
   }
@@ -144,17 +146,25 @@ body {
   font-size: 20px;
 }
 
+#optional-mods {
+  color: #dda500;
+  font-size: 20px;
+}
+
 #submit-button {
   max-height: 50px;
   margin: 20px auto;
 }
 
-#convert-input, #role-msg, #generated-orbat {
+#convert-input,
+#role-msg,
+#generated-orbat {
   width: 600px;
   height: 400px;
 }
 
-#go-home-button, #create-orbat-button {
+#go-home-button,
+#create-orbat-button {
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -170,4 +180,9 @@ body {
 input[type="number"] {
   width: 100px;
   height: 25px;
+}
+
+#backticks-toggle-label {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
