@@ -92,7 +92,7 @@ pub fn command_line_generator() -> Html {
                     .unwrap_or(&modlist.mods)
                     .to_string();
                 new_mods = if backticks {
-                    format!("```\n{}\n```", new_mods)
+                    format!("```\n{new_mods}\n```")
                 } else {
                     new_mods
                 };
@@ -111,7 +111,7 @@ pub fn command_line_generator() -> Html {
 
         html! {
             <label
-                id={props.id.clone().map(|checkbox_id| format!("{}-label", checkbox_id))}
+                id={props.id.clone().map(|checkbox_id| format!("{checkbox_id}-label"))}
                 class={props.class.clone()}
             >
                 <input

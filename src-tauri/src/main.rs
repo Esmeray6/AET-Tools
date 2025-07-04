@@ -129,7 +129,7 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
         let mut mod_name = element.text().next().unwrap().to_string();
         mod_name.retain(|c| c.is_alphanumeric());
         if !mod_name.starts_with("@") {
-            mod_name = format!("@{}", mod_name);
+            mod_name = format!("@{mod_name}");
         }
         if OPTIONAL_MODS.contains(&&*mod_name) {
             optional_mods.push(mod_name.clone());
@@ -168,7 +168,7 @@ async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
 
     for (role, amount) in orbat.iter() {
         if !role.is_empty() && *amount > 0 {
-            roles.push((format!("{}x", amount), role.to_owned()));
+            roles.push((format!("{amount}x"), role.to_owned()));
         }
     }
 
@@ -230,8 +230,8 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
     let mut emojis_vec = vec![];
 
     for (role_count, role) in roles {
-        roles_vec.push(format!("{} {:?}", role_count, role));
-        emojis_vec.push(format!(":{:?}:", role));
+        roles_vec.push(format!("{role_count} {role:?}"));
+        emojis_vec.push(format!(":{role:?}:"));
     }
 
     (roles_vec, emojis_vec)
