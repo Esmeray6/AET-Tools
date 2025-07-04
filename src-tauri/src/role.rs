@@ -84,16 +84,14 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     ENG,
 
-    #[strum(ascii_case_insensitive)]
-    EOD,
-
     #[strum(
         serialize = "DEMO",
+        serialize = "EOD",
         serialize = "Demolitions",
         serialize = "Demolitions Expert"
     )]
     #[strum(ascii_case_insensitive)]
-    DEMO,
+    Explosive_Spec,
 
     #[strum(
         serialize = "MG",
@@ -183,10 +181,6 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     AAA,
 
-    #[strum(serialize = "Pointman", serialize = "Point")]
-    #[strum(ascii_case_insensitive)]
-    Pointman,
-
     #[strum(serialize = "DMR", serialize = "Marksman")]
     #[strum(ascii_case_insensitive)]
     DMR,
@@ -202,6 +196,14 @@ pub enum Role {
     )]
     #[strum(ascii_case_insensitive)]
     AMMO,
+
+    #[strum(serialize = "Breacher", serialize = "CQB")]
+    #[strum(ascii_case_insensitive)]
+    Breacher,
+
+    #[strum(serialize = "Pointman", serialize = "Point")]
+    #[strum(ascii_case_insensitive)]
+    Pointman,
 
     #[strum(
         serialize = "Rifleman",
@@ -220,25 +222,36 @@ pub enum Role {
     #[strum(ascii_case_insensitive)]
     Spotter,
 
-    #[strum(serialize = "MG_Team", serialize = "MGTeam", serialize = "MG Team")]
+    #[strum(
+        serialize = "MG_Team",
+        serialize = "MGTeam",
+        serialize = "MG Team",
+        serialize = "AT_Team",
+        serialize = "ATTeam",
+        serialize = "AT Team",
+        serialize = "Heavy_Weapons",
+        serialize = "Heavy Weapons",
+        serialize = "HeavyWeapons",
+        serialize = "HW"
+    )]
     #[strum(ascii_case_insensitive)]
-    MG_Team,
-
-    #[strum(serialize = "AT_Team", serialize = "ATTeam", serialize = "AT Team")]
-    #[strum(ascii_case_insensitive)]
-    AT_Team,
+    Heavy_Weapons,
 
     #[strum(serialize = "ARTY", serialize = "Artillery")]
     #[strum(ascii_case_insensitive)]
     ARTY,
 
+    #[strum(serialize = "MORT", serialize = "Mortar")]
+    #[strum(ascii_case_insensitive)]
+    MORT,
+
     #[strum(serialize = "LOGI", serialize = "Logistics")]
     #[strum(ascii_case_insensitive)]
     LOGI,
 
-    #[strum(serialize = "MBT", serialize = "Main Battle Tank")]
+    #[strum(serialize = "MBT", serialize = "Main Battle Tank", serialize = "Tank")]
     #[strum(ascii_case_insensitive)]
-    MBT,
+    Tank,
 
     #[strum(serialize = "IFV", serialize = "Infantry Fighting Vehicle")]
     #[strum(ascii_case_insensitive)]
@@ -255,26 +268,25 @@ pub enum Role {
     #[strum(
         serialize = "MRAP",
         serialize = "Mine-Resistant Ambush Protected",
-        serialize = "Mine Resistant Ambush Protected"
+        serialize = "Mine Resistant Ambush Protected",
+        serialize = "Car"
     )]
     #[strum(ascii_case_insensitive)]
-    MRAP,
+    Car,
 
     #[strum(
         serialize = "CAS",
         serialize = "Close Air Support",
-        serialize = "Air Support"
-    )]
-    #[strum(ascii_case_insensitive)]
-    CAS,
-
-    #[strum(
+        serialize = "Air Support",
         serialize = "CAP",
         serialize = "Combat Air Patrol",
-        serialize = "Air Patrol"
+        serialize = "Air Patrol",
+        serialize = "Fixed_Wing",
+        serialize = "Fixed Wing",
+        serialize = "Plane"
     )]
     #[strum(ascii_case_insensitive)]
-    CAP,
+    Fixed_Wing,
 
     #[strum(
         serialize = "VTOL",
@@ -290,24 +302,38 @@ pub enum Role {
         serialize = "CASHeli",
         serialize = "CAS Heli",
         serialize = "CAS Helicopter",
-        serialize = "Rotary CAS"
-    )]
-    #[strum(ascii_case_insensitive)]
-    CAS_Heli,
-
-    #[strum(
+        serialize = "Rotary CAS",
         serialize = "Transport",
         serialize = "Transport Heli",
         serialize = "Transport_Heli",
         serialize = "Transport Helo",
         serialize = "Transport_Helo",
         serialize = "Transport Helicopter",
-        serialize = "Transport_Helicopter"
+        serialize = "Transport_Helicopter",
+        serialize = "Helicopter",
+        serialize = "Heli",
+        serialize = "Helo"
     )]
     #[strum(ascii_case_insensitive)]
-    Transport_Heli,
+    Rotary,
 
     #[strum(serialize = "UAV", serialize = "Unmanned Aerial Vehicle")]
     #[strum(ascii_case_insensitive)]
     UAV,
+
+    #[strum(serialize = "Boat")]
+    #[strum(ascii_case_insensitive)]
+    Boat,
+
+    #[strum(serialize = "Knight")]
+    #[strum(ascii_case_insensitive)]
+    Knight,
+
+    #[strum(serialize = "Space_Marine", serialize = "Space Marine")]
+    #[strum(ascii_case_insensitive)]
+    Space_Marine,
+
+    #[strum(serialize = "Spartan")]
+    #[strum(ascii_case_insensitive)]
+    Spartan,
 }

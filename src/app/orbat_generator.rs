@@ -16,7 +16,7 @@ struct ORBATGenerationData {
     orbat: HashMap<String, u64>,
 }
 
-pub const ROLES: [&str; 41] = [
+pub const ROLES: [&str; 44] = [
     "Zeus",
     "ZH",
     "COY",
@@ -28,8 +28,7 @@ pub const ROLES: [&str; 41] = [
     "JTAC",
     "Medic",
     "ENG",
-    "EOD",
-    "DEMO",
+    "Explosive_Spec",
     "MG",
     "AMG",
     "AR",
@@ -38,26 +37,31 @@ pub const ROLES: [&str; 41] = [
     "AAT",
     "AA",
     "AAA",
-    "Pointman",
     "DMR",
     "GL",
     "AMMO",
+    "Breacher",
+    "Pointman",
     "Rifleman",
     "Sniper",
     "Spotter",
-    "MG_Team",
+    "Heavy_Weapons",
     "ARTY",
+    "MORT",
     "LOGI",
-    "MBT",
+    "Tank",
     "IFV",
     "APC",
-    "MRAP",
-    "CAS",
-    "CAP",
+    "Car",
+    "Fixed_Wing",
     "VTOL",
-    "CAS_Heli",
-    "Transport",
+    "Rotary",
     "UAV",
+    "Boat",
+    // The ones below don't have emotes as of 2025-07-04.
+    "Knight",
+    "Space_Marine",
+    "Spartan",
 ];
 
 #[function_component(ORBATGenerator)]
@@ -108,7 +112,7 @@ pub fn orbat_generator() -> Html {
             let result = invoke("orbat_generate", args).await;
             let generated = from_value::<String>(result).unwrap_or_default();
             // You may want to update a state here with `generated`
-            info!("Generated ORBAT: {}", generated);
+            info!("Generated ORBAT: {generated}");
             role_msg.set(generated);
         });
     });
