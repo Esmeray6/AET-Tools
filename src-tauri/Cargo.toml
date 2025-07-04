@@ -2,27 +2,27 @@
 name = "aet-tools"
 version = "0.1.0"
 description = "Bunch of tools utilized by the Antistasi Event Team"
-authors = ["Esmeray"]
+authors = ["Sky"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.3.0", features = [] }
 
 [dependencies]
-tauri = { version = "2.1.1", features = [] }
+tauri = { version = "2.6.2", features = [] }
 serde = { version = "1.0.203", features = ["derive"] }
-serde_json = "1.0.133"
+serde_json = "1.0.140"
 scraper = "0.23.1"
 strum_macros = "0.27.1"
 strum = { version = "0.27.1", features = ["derive", "strum_macros"] }
-tauri-plugin-shell = "2.0.2"
-tauri-plugin-dialog = "2.0.4"
+tauri-plugin-shell = "2.3.0"
+tauri-plugin-dialog = "2.3.0"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-updater = "2"
+tauri-plugin-updater = "2.9.0"
