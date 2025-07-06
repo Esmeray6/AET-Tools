@@ -11,6 +11,7 @@ use std::{
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 
 use crate::role::Role;
 
@@ -260,7 +261,16 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let version = app.package_info().version.to_string();
-            VERSION.set(Arc::new(version)).unwrap();
+            let name = app.package_info().name.clone();
+            let window = app.get_webview_window("main");
+            if let Some(window) = window {
+                VERSION.set(Arc::new(version.clone())).unwrap();
+                // Set the title of the main window
+                window.set_title(&format!("{name} v{version}")).map_err(|error| {
+                    eprintln!("Failed to set window title: {error}");
+                    error.to_string()
+                })?;
+            }
             Ok(())
         })
         .plugin(tauri_plugin_updater::Builder::new().build())
