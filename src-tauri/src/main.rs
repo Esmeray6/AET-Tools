@@ -134,11 +134,13 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
         }
         if OPTIONAL_MODS.contains(&&*mod_name) {
             optional_mods.push(mod_name.clone());
+            continue;
         }
         mod_list.push(mod_name);
     }
 
     mod_list.sort_by_key(|a| a.to_lowercase());
+    optional_mods.sort_by_key(|a| a.to_lowercase());
 
     for required_mod in REQUIRED_MODS {
         if !mod_list.contains(&required_mod.to_string()) {
@@ -153,9 +155,25 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
     }
 
     let mods = if backticks {
-        format!("```\n{}\n```", mod_list.join(";"))
+        format!(
+            "```\n{}{}\n```",
+            mod_list.join(";"),
+            if !optional_mods.is_empty() {
+                format!(";{}", optional_mods.join(";"))
+            } else {
+                String::new()
+            }
+        )
     } else {
-        mod_list.join(";")
+        format!(
+            "{}{}",
+            mod_list.join(";"),
+            if !optional_mods.is_empty() {
+                format!(";{}", optional_mods.join(";"))
+            } else {
+                String::new()
+            }
+        )
     };
 
     Ok(ModData {
