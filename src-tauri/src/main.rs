@@ -3,11 +3,7 @@
 
 mod role;
 
-use std::{
-    collections::HashMap,
-    str::FromStr,
-    sync::{Arc, OnceLock},
-};
+use std::{collections::HashMap, str::FromStr};
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
@@ -101,8 +97,6 @@ struct ModData {
     missing_mods: String,
     optional_mods: String,
 }
-
-static VERSION: OnceLock<Arc<String>> = OnceLock::new();
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -254,7 +248,6 @@ fn main() {
             let window = app.get_webview_window("main");
             if let Some(window) = window {
                 let name = window.title().unwrap_or("AET Tools".to_string());
-                VERSION.set(Arc::new(version.clone())).unwrap();
                 // Set the title of the main window
                 window
                     .set_title(&format!("{name} v{version}"))
