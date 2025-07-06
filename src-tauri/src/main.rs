@@ -261,9 +261,9 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let version = app.package_info().version.to_string();
-            let name = app.package_info().name.clone();
             let window = app.get_webview_window("main");
             if let Some(window) = window {
+                let name = window.title().unwrap_or("AET Tools".to_string());
                 VERSION.set(Arc::new(version.clone())).unwrap();
                 // Set the title of the main window
                 window.set_title(&format!("{name} v{version}")).map_err(|error| {
