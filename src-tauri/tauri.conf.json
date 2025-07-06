@@ -23,13 +23,12 @@
     "createUpdaterArtifacts": true
   },
   "productName": "aet-tools",
-  "mainBinaryName": "aet-tools",
+  "mainBinaryName": "AET Tools",
   "identifier": "com.esmeray.aet-tools",
   "plugins": {
     "updater": {
       "windows": {
-        "installMode": "basicUi",
-        "installerArgs": []
+        "installMode": "basicUi"
       },
       "endpoints": [
         "https://github.com/Esmeray6/AET-Tools/releases/latest/download/latest.json"
