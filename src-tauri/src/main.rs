@@ -3,11 +3,7 @@
 
 mod role;
 
-use std::{
-    collections::HashMap,
-    str::FromStr,
-    sync::{Arc, OnceLock},
-};
+use std::{collections::HashMap, str::FromStr};
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
@@ -102,8 +98,6 @@ struct ModData {
     optional_mods: String,
 }
 
-static VERSION: OnceLock<Arc<String>> = OnceLock::new();
-
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
@@ -140,11 +134,13 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
         }
         if OPTIONAL_MODS.contains(&&*mod_name) {
             optional_mods.push(mod_name.clone());
+            continue;
         }
         mod_list.push(mod_name);
     }
 
     mod_list.sort_by_key(|a| a.to_lowercase());
+    optional_mods.sort_by_key(|a| a.to_lowercase());
 
     for required_mod in REQUIRED_MODS {
         if !mod_list.contains(&required_mod.to_string()) {
@@ -159,9 +155,25 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
     }
 
     let mods = if backticks {
-        format!("```\n{}\n```", mod_list.join(";"))
+        format!(
+            "```\n{}{}\n```",
+            mod_list.join(";"),
+            if !optional_mods.is_empty() {
+                format!(";{}", optional_mods.join(";"))
+            } else {
+                String::new()
+            }
+        )
     } else {
-        mod_list.join(";")
+        format!(
+            "{}{}",
+            mod_list.join(";"),
+            if !optional_mods.is_empty() {
+                format!(";{}", optional_mods.join(";"))
+            } else {
+                String::new()
+            }
+        )
     };
 
     Ok(ModData {
@@ -254,7 +266,6 @@ fn main() {
             let window = app.get_webview_window("main");
             if let Some(window) = window {
                 let name = window.title().unwrap_or("AET Tools".to_string());
-                VERSION.set(Arc::new(version.clone())).unwrap();
                 // Set the title of the main window
                 window
                     .set_title(&format!("{name} v{version}"))
