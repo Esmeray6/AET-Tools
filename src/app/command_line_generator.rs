@@ -31,7 +31,10 @@ pub fn command_line_generator() -> Html {
     let checked_state = use_state(|| CheckedState::Unchecked);
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
-    let modlist = use_state(|| ModData {mods:String::new(),missing_mods:String::new(), optional_mods: String::new() 
+    let modlist = use_state(|| ModData {
+        mods: String::new(),
+        missing_mods: String::new(),
+        optional_mods: String::new(),
     });
 
     let onchange = {
@@ -99,7 +102,7 @@ pub fn command_line_generator() -> Html {
                 modlist.set(ModData {
                     mods: new_mods,
                     missing_mods: modlist.missing_mods.clone(),
-                    optional_mods: modlist.optional_mods.clone()
+                    optional_mods: modlist.optional_mods.clone(),
                 });
             }
             checked_state.set(new_state);
@@ -130,7 +133,7 @@ pub fn command_line_generator() -> Html {
     });
 
     html! {
-        <div class="container">
+        <div class="container column">
             <h1>{ "Command Line Generator" }</h1>
             <div class="container column">
                 <textarea
