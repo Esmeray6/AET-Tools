@@ -3,10 +3,15 @@
 
 mod role;
 
-use std::{collections::HashMap, str::FromStr};
+use std::{
+    collections::HashMap,
+    str::FromStr,
+    sync::{Arc, OnceLock},
+};
 
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 
 use crate::role::Role;
 
@@ -97,6 +102,8 @@ struct ModData {
     optional_mods: String,
 }
 
+static VERSION: OnceLock<Arc<String>> = OnceLock::new();
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
@@ -119,7 +126,7 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
             mod_list.push(dlc_name.to_string());
         }
     }
-    
+
     let mut missing_mods = vec![];
     let mut missing_mods_string = String::new();
     let mut optional_mods = vec![];
@@ -157,7 +164,10 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
         mod_list.join(";")
     };
 
-    Ok(ModData {mods,missing_mods:missing_mods_string, optional_mods: optional_mods_string
+    Ok(ModData {
+        mods,
+        missing_mods: missing_mods_string,
+        optional_mods: optional_mods_string,
     })
 }
 
@@ -175,6 +185,16 @@ async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
     let roles_emojis_vec = convert_roles(roles);
 
     Ok(roles_emojis_vec.0.join("\n"))
+}
+
+#[tauri::command]
+async fn get_app_version() -> Result<String, String> {
+    let app_version = VERSION
+        .get()
+        .ok_or_else(|| "App version not set".to_string())?
+        .clone();
+
+    Ok(app_version.to_string())
 }
 
 #[tauri::command]
@@ -239,13 +259,28 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
 
 fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+            let version = app.package_info().version.to_string();
+            let window = app.get_webview_window("main");
+            if let Some(window) = window {
+                let name = window.title().unwrap_or("AET Tools".to_string());
+                VERSION.set(Arc::new(version.clone())).unwrap();
+                // Set the title of the main window
+                window.set_title(&format!("{name} v{version}")).map_err(|error| {
+                    eprintln!("Failed to set window title: {error}");
+                    error.to_string()
+                })?;
+            }
+            Ok(())
+        })
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            orbat_generate
+            orbat_generate,
+            get_app_version
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

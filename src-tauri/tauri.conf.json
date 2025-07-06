@@ -1,7 +1,8 @@
 {
+  "$schema": "https://schema.tauri.app/config/2.6.2",
   "build": {
     "beforeDevCommand": "trunk serve",
-    "beforeBuildCommand": "trunk build",
+    "beforeBuildCommand": "trunk build --release=true",
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1422"
   },
@@ -10,7 +11,7 @@
     "targets": [
       "msi"
     ],
-    "publisher": "Esmeray",
+    "publisher": "Sky",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -23,12 +24,11 @@
   },
   "productName": "aet-tools",
   "mainBinaryName": "aet-tools",
-  "version": "2.1.0",
   "identifier": "com.esmeray.aet-tools",
   "plugins": {
     "updater": {
       "windows": {
-        "installMode": "passive",
+        "installMode": "basicUi",
         "installerArgs": []
       },
       "endpoints": [
