@@ -7,17 +7,6 @@
   ],
   "permissions": [
     "core:default",
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "args": false,
-          "cmd": "./config2json",
-          "name": "config2json",
-          "sidecar": false
-        }
-      ]
-    },
     "shell:allow-open",
     "dialog:allow-open",
     "shell:default",
