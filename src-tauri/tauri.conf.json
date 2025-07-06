@@ -28,7 +28,7 @@
   "plugins": {
     "updater": {
       "windows": {
-        "installMode": "basicUi"
+        "installMode": "passive"
       },
       "endpoints": [
         "https://github.com/Esmeray6/AET-Tools/releases/latest/download/latest.json"
