@@ -260,7 +260,7 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
 }
 
 fn main() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .setup(|app| {
             let version = app.package_info().version.to_string();
             let window = app.get_webview_window("main");
@@ -274,9 +274,12 @@ fn main() {
                         error.to_string()
                     })?;
             }
+
+            #[cfg(desktop)]
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
             Ok(())
         })
-        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
@@ -284,6 +287,10 @@ fn main() {
             orbat_convert,
             orbat_generate
         ])
-        .run(tauri::generate_context!())
+        .build(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    app.run(|_app_handle, event| {
+        dbg!(&event);
+    });
 }
