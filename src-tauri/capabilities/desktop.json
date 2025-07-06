@@ -7,6 +7,15 @@
     "main"
   ],
   "permissions": [
-    "updater:default"
+    "core:default",
+    "shell:allow-open",
+    "shell:default",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-ask",
+    "dialog:allow-message",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download-and-install"
   ]
 }
