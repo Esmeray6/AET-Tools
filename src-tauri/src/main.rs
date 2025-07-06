@@ -188,16 +188,6 @@ async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn get_app_version() -> Result<String, String> {
-    let app_version = VERSION
-        .get()
-        .ok_or_else(|| "App version not set".to_string())?
-        .clone();
-
-    Ok(app_version.to_string())
-}
-
-#[tauri::command]
 async fn orbat_convert(orbat: String) -> Result<String, String> {
     let mut roles = vec![];
 
@@ -266,10 +256,12 @@ fn main() {
                 let name = window.title().unwrap_or("AET Tools".to_string());
                 VERSION.set(Arc::new(version.clone())).unwrap();
                 // Set the title of the main window
-                window.set_title(&format!("{name} v{version}")).map_err(|error| {
-                    eprintln!("Failed to set window title: {error}");
-                    error.to_string()
-                })?;
+                window
+                    .set_title(&format!("{name} v{version}"))
+                    .map_err(|error| {
+                        eprintln!("Failed to set window title: {error}");
+                        error.to_string()
+                    })?;
             }
             Ok(())
         })
@@ -279,8 +271,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            orbat_generate,
-            get_app_version
+            orbat_generate
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
