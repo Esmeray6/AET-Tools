@@ -8,6 +8,7 @@ use std::{collections::HashMap, str::FromStr};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
+use tauri_plugin_updater::UpdaterExt;
 
 use crate::role::Role;
 
@@ -261,6 +262,9 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
 
 fn main() {
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             let version = app.package_info().version.to_string();
             let window = app.get_webview_window("main");
@@ -275,13 +279,29 @@ fn main() {
                     })?;
             }
 
-            #[cfg(desktop)]
-            app.handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let response = handle
+                    .updater_builder()
+                    .build()
+                    .unwrap()
+                    .check()
+                    .await
+                    .expect("Error in getting response result")
+                    .expect("Error in getting response option");
+
+                response
+                    .download_and_install(
+                        |_bytes, _next_bytes| {},
+                        || {
+                            dbg!("Download finished");
+                        },
+                    )
+                    .await
+                    .unwrap();
+            });
             Ok(())
         })
-        .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
