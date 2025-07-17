@@ -22,7 +22,7 @@
     "resources": [],
     "createUpdaterArtifacts": true
   },
-  "productName": "aet-tools",
+  "productName": "AET Tools",
   "mainBinaryName": "AET Tools",
   "identifier": "com.esmeray.aet-tools",
   "plugins": {
