@@ -195,9 +195,13 @@ async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
         }
     }
 
-    let roles_emojis_vec = convert_roles(roles);
+    let (roles_vec, emojis_vec) = convert_roles(roles);
 
-    Ok(roles_emojis_vec.0.join("\n"))
+    Ok(dbg!(format!(
+        "{}\n\n{}",
+        roles_vec.join("\n"),
+        emojis_vec.join(" ")
+    )))
 }
 
 #[tauri::command]
@@ -281,24 +285,28 @@ fn main() {
 
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                let response = handle
+                let response_opt = handle
                     .updater_builder()
                     .build()
                     .unwrap()
                     .check()
                     .await
-                    .expect("Error in getting response result")
-                    .expect("Error in getting response option");
+                    .expect("Error in getting response result");
 
-                response
-                    .download_and_install(
-                        |_bytes, _next_bytes| {},
-                        || {
-                            dbg!("Download finished");
-                        },
-                    )
-                    .await
-                    .unwrap();
+                if let Some(response) = response_opt {
+                    response
+                        .download_and_install(
+                            |_bytes, _next_bytes| {},
+                            || {
+                                dbg!("Download finished");
+                            },
+                        )
+                        .await
+                        .unwrap();
+                }
+                else {
+                    dbg!("No updates available");
+                }
             });
             Ok(())
         })
@@ -310,7 +318,7 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    app.run(|_app_handle, event| {
-        dbg!(&event);
+    app.run(|_app_handle, _event| {
+        // dbg!(&_event);
     });
 }
