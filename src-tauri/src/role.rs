@@ -88,7 +88,12 @@ pub enum Role {
         serialize = "DEMO",
         serialize = "EOD",
         serialize = "Demolitions",
-        serialize = "Demolitions Expert"
+        serialize = "Demolitions Expert",
+        serialize = "Demolitions Specialist",
+        serialize = "Explosive_Spec",
+        serialize = "Explosive Spec",
+        serialize = "Explosives Spec",
+        serialize = "Explosives Specialist"
     )]
     #[strum(ascii_case_insensitive)]
     Explosive_Spec,
