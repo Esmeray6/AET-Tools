@@ -12,17 +12,23 @@ use tauri_plugin_updater::UpdaterExt;
 
 use crate::role::Role;
 
-const REQUIRED_MODS: [&str; 11] = [
+const REQUIRED_MODS: [&str; 17] = [
     "@ace",
+    "@AETAuxiliaries",
+    "@AETPlanImporter",
     "@ArmorModifierACE",
     "@CBAA3",
     "@DiwakosPunishunknownweapon",
     "@EnhancedMovement",
     "@EnhancedMovementRework",
+    "@FriendlyFirePhantomProtocol",
+    "@GruppeAdlerAdminMessages",
     "@MetisMarker",
     "@ProneLauncher",
     "@TaskForceArrowheadRadioBETA",
+    "@UserInputMenus",
     "@UVOAETAIO",
+    "@VETUnflipping",
     "@ZeusEnhanced",
 ];
 
@@ -303,8 +309,7 @@ fn main() {
                         )
                         .await
                         .unwrap();
-                }
-                else {
+                } else {
                     dbg!("No updates available");
                 }
             });
