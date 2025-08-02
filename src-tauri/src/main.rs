@@ -32,8 +32,9 @@ const REQUIRED_MODS: [&str; 17] = [
     "@ZeusEnhanced",
 ];
 
-const OPTIONAL_MODS: [&str; 63] = [
+const OPTIONAL_MODS: [&str; 66] = [
     "@A3ThermalImprovement",
+    "@AdvancedDeveloperTools",
     "@ACE3ExtensionAnimationsandActions",
     "@ACEInteractionMenuExpansion",
     "@ACEVehicleMedical",
@@ -57,6 +58,8 @@ const OPTIONAL_MODS: [&str; 63] = [
     "@CEMovement",
     "@CLVTriggerDebuggerSigned",
     "@CrowsZeusAdditions",
+    "@DIRTBloodTextures",
+    "@DIRTDynamicTextures",
     "@DUISquadRadar",
     "@DynaSound2",
     "@EnhancedGPS",
