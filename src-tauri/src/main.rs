@@ -273,6 +273,46 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
     (roles_vec, emojis_vec)
 }
 
+fn sort_mods(html_preset: String) -> Result<String, String> {
+    let document = Html::parse_document(&html_preset);
+
+    // Selectors
+    let tr_selector = Selector::parse(r#"html body div.mod-list table tbody tr"#).unwrap();
+    let name_selector = Selector::parse(r#"td[data-type="DisplayName"]"#).unwrap();
+
+    // Extract and collect (DisplayName, tr_html) tuples
+    let mut mods: Vec<(String, String)> = document
+        .select(&tr_selector)
+        .filter_map(|tr| {
+            let name = tr
+                .select(&name_selector)
+                .next()?
+                .text()
+                .collect::<String>()
+                .trim()
+                .to_string();
+            Some((name, tr.html()))
+        })
+        .collect();
+
+    // Sort by DisplayName
+    mods.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
+
+    let mut final_mods = vec![];
+
+    for (name, tr_html) in mods {
+        final_mods.push(tr_html);
+    }
+
+    // Join the sorted HTML strings
+    let sorted_html = final_mods.join("\n");
+    if sorted_html.is_empty() {
+        return Err("No mods found".to_string());
+    }
+
+    Ok(sorted_html)
+}
+
 fn main() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
