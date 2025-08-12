@@ -2,12 +2,12 @@ use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-use crate::app::{command_line_generator::CommandLineGenerator, orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter};
+use crate::app::{command_line_generator::CommandLineGenerator, orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter, hemtt_launch_generator::HEMTTLaunchGenerator};
 
 mod command_line_generator;
 mod orbat_sorter;
 mod orbat_generator;
-
+mod hemtt_launch_generator;
 #[wasm_bindgen]
 extern "C" {
     // invoke without arguments
@@ -29,6 +29,8 @@ pub enum Route {
     ORBATSorter,
     #[at("/orbat_generator")]
     ORBATGenerator,
+    #[at("/hemtt_launch_generator")]
+    HEMTTLaunchGenerator,
     // #[at("/inventory_viewer")]
     // InventoryViewer,
     #[not_found]
@@ -73,6 +75,7 @@ pub fn switch(routes: Route) -> Html {
         Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::ORBATSorter => html! { <ORBATSorter /> },
         Route::ORBATGenerator => html! { <ORBATGenerator /> },
+        Route::HEMTTLaunchGenerator => html! { <HEMTTLaunchGenerator />}
     }
 }
 
