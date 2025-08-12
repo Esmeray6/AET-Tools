@@ -276,6 +276,7 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
 #[tauri::command]
 async fn hemtt_launch_convert(mods: String) -> Result<String, String> {
     // TODO: Copy some code from the command line generator to convert mods into proper name-ID pairs
+    todo!()
 }
 
 // fn sort_mods(html_preset: String) -> Result<String, String> {
@@ -366,7 +367,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            orbat_generate
+            orbat_generate,
+            hemtt_launch_convert
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
