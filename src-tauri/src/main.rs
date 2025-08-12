@@ -273,6 +273,11 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
     (roles_vec, emojis_vec)
 }
 
+#[tauri::command]
+async fn hemtt_launch_convert(mods: String) -> Result<String, String> {
+    // TODO: Copy some code from the command line generator to convert mods into proper name-ID pairs
+}
+
 // fn sort_mods(html_preset: String) -> Result<String, String> {
 //     let document = Html::parse_document(&html_preset);
 
