@@ -28,7 +28,7 @@ use crate::app::Route;
 pub fn command_line_generator() -> Html {
     let navigator = use_navigator().unwrap();
 
-    let checked_state = use_state(|| CheckedState::Unchecked);
+    let checked_state = use_state(|| CheckedState::Checked);
     let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
     let modlist = use_state(|| ModData {
@@ -145,7 +145,7 @@ pub fn command_line_generator() -> Html {
                 <Checkbox
                     id="backticks-toggle"
                     render_as={render_as}
-                    default_checked={CheckedState::Unchecked}
+                    default_checked={CheckedState::Checked}
                     checked={(*checked_state).clone()}
                     on_checked_change={on_checked_change}
                 >
