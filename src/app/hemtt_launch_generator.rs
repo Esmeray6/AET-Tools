@@ -68,12 +68,12 @@ pub fn hemtt_launch_generator() -> Html {
 
     html! {
         <div class="container column">
-            <h1>{ "Command Line Generator" }</h1>
+            <h1>{ "HEMTT Launch Generator" }</h1>
             <div class="container column">
                 <textarea
-                    name="command-line"
-                    id="command-line"
-                    placeholder="Enter the list of mods here..."
+                    name="result-config"
+                    id="result-config"
+                    placeholder="HEMTT config goes here..."
                     value={modlist.mods.to_string()}
                 />
                 <input accept=".html" {onchange} type="file" name="mod-list" id="mod-list" />
