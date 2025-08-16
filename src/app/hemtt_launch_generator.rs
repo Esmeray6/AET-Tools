@@ -9,6 +9,8 @@ use yew_router::prelude::*;
 #[derive(Serialize, Deserialize, Debug)]
 struct ModData {
     mods: String,
+    dlcs: String,
+    result: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -27,6 +29,8 @@ pub fn hemtt_launch_generator() -> Html {
 
     let modlist = use_state(|| ModData {
         mods: String::new(),
+        dlcs: String::new(),
+        result: String::new(),
     });
 
     let onchange = {
@@ -74,7 +78,7 @@ pub fn hemtt_launch_generator() -> Html {
                     name="result-config"
                     id="result-config"
                     placeholder="HEMTT config goes here..."
-                    value={modlist.mods.to_string()}
+                    value={modlist.result.to_string()}
                 />
                 <input accept=".html" {onchange} type="file" name="mod-list" id="mod-list" />
             </div>
