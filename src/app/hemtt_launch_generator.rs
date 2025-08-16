@@ -80,7 +80,7 @@ pub fn hemtt_launch_generator() -> Html {
                     placeholder="HEMTT config goes here..."
                     value={modlist.result.to_string()}
                 />
-                <input accept=".html" {onchange} type="file" name="mod-list" id="mod-list" />
+                <input accept=".html" {onchange} type="file" name="mod-preset" id="mod-preset" />
             </div>
             <button id="go-home-button" {onclick}>{ "Go Home" }</button>
         </div>
