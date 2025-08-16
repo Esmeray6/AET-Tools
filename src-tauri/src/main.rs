@@ -112,6 +112,7 @@ struct ModData {
 struct HEMTTModData {
     mods: String,
     dlcs: String,
+    result: String
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -298,10 +299,12 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
     for element in markup.select(&mods_selector) {
         let mut children = element.select(&td_selector);
         // dbg!(&children);
-        let mut mod_name = children.next().unwrap().inner_html();
+        let mod_name = children.next().unwrap().inner_html();
 
         let mod_id_td_a = element.select(&td_a_selector).next();
-        let mut mod_id = dbg!(mod_id_td_a.expect("mod_id_td_a not found").attr("href"))
+        let mut mod_id = mod_id_td_a
+            .expect("mod_id_td_a not found")
+            .attr("href")
             .unwrap_or("UNKNOWN MOD ID")
             .to_string();
         mod_id = mod_id
@@ -310,36 +313,44 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
             .unwrap_or("UNKNOWN ID")
             .to_string();
         // mod_name.retain(|c| c.is_alphanumeric());
-        mod_name = format!("\"{mod_id}\", # {mod_name}");
-        mod_list.push(mod_name);
+        mod_list.push((mod_id, mod_name));
     }
 
     for element in markup.select(&dlc_selector) {
-        let mut dlc_name = element
-            .text()
-            .next()
-            .unwrap_or("UNKNOWN DLC NAME")
-            .to_string();
+        let mut children = element.select(&td_selector);
+        // dbg!(&children);
+
+        let mut dlc_name = children.next().unwrap().inner_html();
         // dlc_name.retain(|c| c.is_alphanumeric());
-        dlc_name = format!("\"{dlc_name},\"");
+        dlc_name = format!("\"{dlc_name}\",");
         dlc_list.push(dlc_name);
     }
 
-    mod_list.sort_by_key(|mod_entry| mod_entry.to_lowercase());
+    mod_list.sort_by_key(|mod_entry| mod_entry.1.to_lowercase());
     dlc_list.sort_by_key(|dlc_entry| dlc_entry.to_lowercase());
 
     let mods = if !mod_list.is_empty() {
-        format!("workshop = [\n{}\n]", mod_list.join("\n"))
+        format!(
+            "workshop = [\n{}\n]",
+            mod_list
+                .iter()
+                .map(|(id, name)| format!("\"{id}\", # {name}"))
+                .collect::<Vec<String>>()
+                .join("\n")
+        )
     } else {
-        String::new()
+        "workshop = []".to_string()
     };
     let dlcs = if !dlc_list.is_empty() {
         format!("dlc = [\n{}\n]", dlc_list.join("\n"))
     } else {
-        String::new()
+        "dlc = []".to_string()
     };
+    dbg!(&dlcs);
 
-    Ok(HEMTTModData { mods, dlcs })
+    let result = format!("{}\n\n{}", mods, dlcs).trim().to_string();
+
+    Ok(HEMTTModData { mods, dlcs, result })
 }
 
 // fn sort_mods(html_preset: String) -> Result<String, String> {
