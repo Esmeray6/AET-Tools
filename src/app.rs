@@ -2,12 +2,15 @@ use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-use crate::app::{command_line_generator::CommandLineGenerator, orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter};
+use crate::app::{
+    command_line_generator::CommandLineGenerator, hemtt_launch_generator::HEMTTLaunchGenerator,
+    orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter,
+};
 
 mod command_line_generator;
-mod orbat_sorter;
+mod hemtt_launch_generator;
 mod orbat_generator;
-
+mod orbat_sorter;
 #[wasm_bindgen]
 extern "C" {
     // invoke without arguments
@@ -29,6 +32,8 @@ pub enum Route {
     ORBATSorter,
     #[at("/orbat_generator")]
     ORBATGenerator,
+    #[at("/hemtt_launch_generator")]
+    HEMTTLaunchGenerator,
     // #[at("/inventory_viewer")]
     // InventoryViewer,
     #[not_found]
@@ -49,6 +54,10 @@ pub fn home() -> Html {
     let navig = navigator.clone();
     let orbat_generator_redirect = Callback::from(move |_| navig.push(&Route::ORBATGenerator));
 
+    let navig = navigator.clone();
+    let hemtt_launch_generator_redirect =
+        Callback::from(move |_| navig.push(&Route::HEMTTLaunchGenerator));
+
     println!("Home");
 
     html! {
@@ -57,6 +66,7 @@ pub fn home() -> Html {
             <button onclick={command_line_redirect}>{ "Command Line Generator" }</button>
             <button onclick={orbat_sorter_redirect}>{ "ORBAT Sorter" }</button>
             <button onclick={orbat_generator_redirect}>{ "ORBAT Generator" }</button>
+            <button onclick={hemtt_launch_generator_redirect}>{ "HEMTT Launch Generator" }</button>
         </div>
     }
 }
@@ -73,6 +83,7 @@ pub fn switch(routes: Route) -> Html {
         Route::CommandLineGenerator => html! { <CommandLineGenerator /> },
         Route::ORBATSorter => html! { <ORBATSorter /> },
         Route::ORBATGenerator => html! { <ORBATGenerator /> },
+        Route::HEMTTLaunchGenerator => html! { <HEMTTLaunchGenerator /> },
     }
 }
 
