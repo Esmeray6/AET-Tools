@@ -108,28 +108,35 @@ struct ModData {
     optional_mods: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct HEMTTModData {
+    mods: String,
+    dlcs: String,
+    result: String,
+}
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
     let mut mod_list = vec![];
-    let dlc_prefixes: HashMap<String, String> = Default::default();
 
     let markup = Html::parse_document(modpreset);
     let mods_selector =
         Selector::parse("div.mod-list > table > tbody > tr > td[data-type='DisplayName']")
             .expect("No mod list found");
-    let dlc_selector =
-        Selector::parse("div.dlc-list > table > tbody > tr > td[data-type='DisplayName']")
-            .expect("No mod list found");
+    // let dlc_selector =
+    // Selector::parse("div.dlc-list > table > tbody > tr > td[data-type='DisplayName']")
+    // .expect("No mod list found");
 
-    for element in markup.select(&dlc_selector) {
-        let inner_html = element.text().next().unwrap();
-        dbg!(&inner_html);
-        let dlc_prefix = dlc_prefixes.get(inner_html);
-        if let Some(dlc_name) = dlc_prefix {
-            mod_list.push(dlc_name.to_string());
-        }
-    }
+    // let dlc_prefixes: HashMap<String, String> = Default::default();
+    // for element in markup.select(&dlc_selector) {
+    //     let inner_html = element.text().next().unwrap();
+    //     dbg!(&inner_html);
+    //     let dlc_prefix = dlc_prefixes.get(inner_html);
+    //     if let Some(dlc_name) = dlc_prefix {
+    //         mod_list.push(dlc_name.to_string());
+    //     }
+    // }
 
     let mut missing_mods = vec![];
     let mut missing_mods_string = String::new();
@@ -273,6 +280,78 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
     (roles_vec, emojis_vec)
 }
 
+#[tauri::command]
+async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String> {
+    let mut mod_list = vec![];
+    let mut dlc_list = vec![];
+
+    let markup = Html::parse_document(&modpreset);
+    let mods_selector =
+        Selector::parse("div.mod-list > table > tbody > tr[data-type='ModContainer']")
+            .expect("No mod list found");
+    let dlc_selector =
+        Selector::parse("div.dlc-list > table > tbody > tr[data-type='DlcContainer']")
+            .expect("No DLC list found");
+    let td_selector = Selector::parse("td").expect("No td found");
+    let td_a_selector = Selector::parse("td > a").expect("No td.a found");
+
+    for element in markup.select(&mods_selector) {
+        let mut children = element.select(&td_selector);
+        // dbg!(&children);
+        let mod_name = children.next().unwrap().inner_html();
+
+        let mod_id_td_a = element.select(&td_a_selector).next();
+        let mut mod_id = mod_id_td_a
+            .expect("mod_id_td_a not found")
+            .attr("href")
+            .unwrap_or("UNKNOWN MOD ID")
+            .to_string();
+        mod_id = mod_id
+            .strip_prefix("https://steamcommunity.com/sharedfiles/filedetails/?id=")
+            .or(mod_id.strip_prefix("http://steamcommunity.com/sharedfiles/filedetails/?id="))
+            .unwrap_or("UNKNOWN ID")
+            .to_string();
+        // mod_name.retain(|c| c.is_alphanumeric());
+        mod_list.push((mod_id, mod_name));
+    }
+
+    for element in markup.select(&dlc_selector) {
+        let mut children = element.select(&td_selector);
+        // dbg!(&children);
+
+        let mut dlc_name = children.next().unwrap().inner_html();
+        // dlc_name.retain(|c| c.is_alphanumeric());
+        dlc_name = format!("\"{dlc_name}\",");
+        dlc_list.push(dlc_name);
+    }
+
+    mod_list.sort_by_key(|mod_entry| mod_entry.1.to_lowercase());
+    dlc_list.sort_by_key(|dlc_entry| dlc_entry.to_lowercase());
+
+    let mods = if !mod_list.is_empty() {
+        format!(
+            "workshop = [\n{}\n]",
+            mod_list
+                .iter()
+                .map(|(id, name)| format!("\"{id}\", # {name}"))
+                .collect::<Vec<String>>()
+                .join("\n")
+        )
+    } else {
+        "workshop = []".to_string()
+    };
+    let dlcs = if !dlc_list.is_empty() {
+        format!("dlc = [\n{}\n]", dlc_list.join("\n"))
+    } else {
+        "dlc = []".to_string()
+    };
+    dbg!(&dlcs);
+
+    let result = format!("{}\n\n{}", mods, dlcs).trim().to_string();
+
+    Ok(HEMTTModData { mods, dlcs, result })
+}
+
 // fn sort_mods(html_preset: String) -> Result<String, String> {
 //     let document = Html::parse_document(&html_preset);
 
@@ -361,7 +440,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             command_line_convert,
             orbat_convert,
-            orbat_generate
+            orbat_generate,
+            hemtt_launch_convert
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
