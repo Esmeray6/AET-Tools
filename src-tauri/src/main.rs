@@ -112,7 +112,7 @@ struct ModData {
 struct HEMTTModData {
     mods: String,
     dlcs: String,
-    result: String
+    result: String,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -282,7 +282,6 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
 
 #[tauri::command]
 async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String> {
-    // TODO: Copy some code from the command line generator to convert mods into proper name-ID pairs
     let mut mod_list = vec![];
     let mut dlc_list = vec![];
 
