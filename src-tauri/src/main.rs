@@ -145,7 +145,7 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
 
     for element in markup.select(&mods_selector) {
         let mut mod_name = element.text().next().unwrap().to_string();
-        mod_name.retain(|c| c.is_alphanumeric());
+        mod_name.retain(|c| c.is_ascii_alphanumeric());
         if !mod_name.starts_with("@") {
             mod_name = format!("@{mod_name}");
         }
