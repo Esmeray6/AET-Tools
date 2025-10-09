@@ -303,6 +303,9 @@ pub enum Role {
     VTOL,
 
     #[strum(
+        serialize = "Rotary",
+        serialize = "Rotor",
+        serialize = "Rotors",
         serialize = "CAS_Heli",
         serialize = "CASHeli",
         serialize = "CAS Heli",
