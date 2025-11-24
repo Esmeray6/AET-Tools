@@ -1,8 +1,4 @@
-#![allow(
-    non_camel_case_types,
-    clippy::upper_case_acronyms,
-    clippy::upper_case_acronyms
-)]
+#![allow(non_camel_case_types, clippy::upper_case_acronyms)]
 use strum_macros::{Display, EnumString};
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, EnumString, Display)]
@@ -93,7 +89,8 @@ pub enum Role {
         serialize = "Explosive_Spec",
         serialize = "Explosive Spec",
         serialize = "Explosives Spec",
-        serialize = "Explosives Specialist"
+        serialize = "Explosives Specialist",
+        serialize = "Explosive Specialist"
     )]
     #[strum(ascii_case_insensitive)]
     Explosive_Spec,
