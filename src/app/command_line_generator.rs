@@ -13,6 +13,7 @@ struct ModData {
     mods: String,
     missing_mods: String,
     optional_mods: String,
+    dlcs_list: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -35,6 +36,7 @@ pub fn command_line_generator() -> Html {
         mods: String::new(),
         missing_mods: String::new(),
         optional_mods: String::new(),
+        dlcs_list: String::new(),
     });
 
     let onchange = {
@@ -103,6 +105,7 @@ pub fn command_line_generator() -> Html {
                     mods: new_mods,
                     missing_mods: modlist.missing_mods.clone(),
                     optional_mods: modlist.optional_mods.clone(),
+                    dlcs_list: modlist.dlcs_list.clone(),
                 });
             }
             checked_state.set(new_state);
