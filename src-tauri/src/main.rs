@@ -32,7 +32,8 @@ const REQUIRED_MODS: [&str; 17] = [
     "@ZeusEnhanced",
 ];
 
-const OPTIONAL_MODS: [&str; 66] = [
+const OPTIONAL_MODS: [&str; 68] = [
+    "@3denEnhanced",
     "@A3ThermalImprovement",
     "@AdvancedDeveloperTools",
     "@ACE3ExtensionAnimationsandActions",
@@ -58,6 +59,7 @@ const OPTIONAL_MODS: [&str; 66] = [
     "@CEMovement",
     "@CLVTriggerDebuggerSigned",
     "@CrowsZeusAdditions",
+    "@Deformer",
     "@DIRTBloodTextures",
     "@DIRTDynamicTextures",
     "@DUISquadRadar",
@@ -106,6 +108,7 @@ struct ModData {
     mods: String,
     missing_mods: String,
     optional_mods: String,
+    dlcs_list: String
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -119,24 +122,21 @@ struct HEMTTModData {
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
     let mut mod_list = vec![];
+    let mut dlcs_list = vec![];
 
     let markup = Html::parse_document(modpreset);
     let mods_selector =
         Selector::parse("div.mod-list > table > tbody > tr > td[data-type='DisplayName']")
             .expect("No mod list found");
-    // let dlc_selector =
-    // Selector::parse("div.dlc-list > table > tbody > tr > td[data-type='DisplayName']")
-    // .expect("No mod list found");
+    let dlc_selector =
+        Selector::parse("div.dlc-list > table > tbody > tr > td[data-type='DisplayName']")
+            .expect("No mod list found");
 
-    // let dlc_prefixes: HashMap<String, String> = Default::default();
-    // for element in markup.select(&dlc_selector) {
-    //     let inner_html = element.text().next().unwrap();
-    //     dbg!(&inner_html);
-    //     let dlc_prefix = dlc_prefixes.get(inner_html);
-    //     if let Some(dlc_name) = dlc_prefix {
-    //         mod_list.push(dlc_name.to_string());
-    //     }
-    // }
+    for element in markup.select(&dlc_selector) {
+        let dlc_name = element.text().next().unwrap();
+        dbg!(&dlc_name);
+        dlcs_list.push(dlc_name.to_string());
+    }
 
     let mut missing_mods = vec![];
     let mut missing_mods_string = String::new();
@@ -192,11 +192,17 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
             }
         )
     };
+    let dlcs_list_string = if !dlcs_list.is_empty() {
+        format!("CDLCs found: {}", dlcs_list.join(", "))
+    } else {
+        String::new()
+    };
 
     Ok(ModData {
         mods,
         missing_mods: missing_mods_string,
         optional_mods: optional_mods_string,
+        dlcs_list: dlcs_list_string,
     })
 }
 
