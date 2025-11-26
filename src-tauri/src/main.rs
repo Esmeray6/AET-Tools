@@ -265,7 +265,7 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
             }
         })
         .collect::<Vec<(String, Role)>>();
-    roles.sort_by(|first, second| first.1.cmp(&second.1));
+    roles.sort_by(|first_role, second_role| first_role.1.cmp(&second_role.1));
 
     let zeus_present = roles.iter().any(|role| {
         format!("{:?}", role.1)
