@@ -158,6 +158,7 @@ pub fn command_line_generator() -> Html {
             </div>
             <p id="missing-mods">{ modlist.missing_mods.to_string() }</p>
             <p id="optional-mods">{ modlist.optional_mods.to_string() }</p>
+            <p id="dlc-list">{ modlist.dlcs_list.to_string() }</p>
             <button id="go-home-button" {onclick}>{ "Go Home" }</button>
         </div>
     }
