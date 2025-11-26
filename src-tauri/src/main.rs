@@ -108,7 +108,7 @@ struct ModData {
     mods: String,
     missing_mods: String,
     optional_mods: String,
-    dlcs_list: String
+    dlcs_list: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -134,7 +134,7 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
 
     for element in markup.select(&dlc_selector) {
         let dlc_name = element.text().next().unwrap();
-        dbg!(&dlc_name);
+        // dbg!(&dlc_name);
         dlcs_list.push(dlc_name.to_string());
     }
 
@@ -219,11 +219,11 @@ async fn orbat_generate(orbat: HashMap<String, u64>) -> Result<String, String> {
 
     let (roles_vec, emojis_vec) = convert_roles(roles);
 
-    Ok(dbg!(format!(
+    Ok(format!(
         "{}\n\n{}",
         roles_vec.join("\n"),
         emojis_vec.join(" ")
-    )))
+    ))
 }
 
 #[tauri::command]
@@ -240,11 +240,11 @@ async fn orbat_convert(orbat: String) -> Result<String, String> {
     }
     let (roles_vec, emojis_vec) = convert_roles(roles);
 
-    Ok(dbg!(format!(
+    Ok(format!(
         "{}\n\n{}",
         roles_vec.join("\n"),
         emojis_vec.join(" ")
-    )))
+    ))
 }
 
 fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
@@ -267,10 +267,12 @@ fn convert_roles(roles: Vec<(String, String)>) -> (Vec<String>, Vec<String>) {
         .collect::<Vec<(String, Role)>>();
     roles.sort_by(|first, second| first.1.cmp(&second.1));
 
-    let zeus_present = dbg!(roles.iter().any(|role| format!("{:?}", role.1)
-        .to_string()
-        .to_lowercase()
-        .contains("zeus")));
+    let zeus_present = roles.iter().any(|role| {
+        format!("{:?}", role.1)
+            .to_string()
+            .to_lowercase()
+            .contains("zeus")
+    });
     if !zeus_present {
         roles.insert(0, ("2x".to_string(), Role::Zeus));
     }
@@ -351,7 +353,6 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
     } else {
         "dlc = []".to_string()
     };
-    dbg!(&dlcs);
 
     let result = format!("{}\n\n{}", mods, dlcs).trim().to_string();
 
