@@ -1,3 +1,5 @@
+/** @format */
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -122,7 +124,8 @@ body {
   height: 100vh;
 }
 
-#command-line, #result-config {
+#command-line,
+#result-config {
   height: 20vh;
   padding: 5px;
   font-size: 20px;
@@ -148,6 +151,11 @@ body {
 
 #optional-mods {
   color: #dda500;
+  font-size: 20px;
+}
+
+#dlc-list {
+  color: #00c3dd;
   font-size: 20px;
 }
 
