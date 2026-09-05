@@ -18,8 +18,8 @@ struct ModArgs<'a> {
     modpreset: &'a str,
 }
 
-use crate::app::invoke;
 use crate::app::Route;
+use crate::app::invoke;
 
 #[function_component(HEMTTLaunchGenerator)]
 pub fn hemtt_launch_generator() -> Html {
@@ -39,33 +39,31 @@ pub fn hemtt_launch_generator() -> Html {
             let target: Option<EventTarget> = event.target();
             let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
 
-            if let Some(input) = input {
-                if let Some(files) = input.files() {
-                    if let Some(file) = files.get(0) {
-                        let reader = FileReader::new().unwrap();
-                        let onloadend = {
-                            let mod_data = mod_data.clone();
-                            Closure::wrap(Box::new(move |event: Event| {
-                                let reader =
-                                    event.target().unwrap().dyn_into::<FileReader>().unwrap();
-                                let text = reader.result().unwrap().as_string().unwrap();
+            if let Some(input) = input
+                && let Some(files) = input.files()
+                && let Some(file) = files.get(0)
+            {
+                let reader = FileReader::new().unwrap();
+                let onloadend = {
+                    let mod_data = mod_data.clone();
+                    Closure::wrap(Box::new(move |event: Event| {
+                        let reader = event.target().unwrap().dyn_into::<FileReader>().unwrap();
+                        let text = reader.result().unwrap().as_string().unwrap();
 
-                                let mod_data = mod_data.clone();
-                                // Invoke the Tauri command with the file content
-                                spawn_local(async move {
-                                    //let mod_data = mod_data.clone();
-                                    let file_data = ModArgs { modpreset: &text };
-                                    let val = to_value(&file_data).unwrap();
-                                    let x = invoke("hemtt_launch_convert", val).await;
-                                    mod_data.set(from_value(x).unwrap());
-                                });
-                            }) as Box<dyn FnMut(_)>)
-                        };
-                        reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
-                        reader.read_as_text(&file).unwrap();
-                        onloadend.forget();
-                    }
-                }
+                        let mod_data = mod_data.clone();
+                        // Invoke the Tauri command with the file content
+                        spawn_local(async move {
+                            //let mod_data = mod_data.clone();
+                            let file_data = ModArgs { modpreset: &text };
+                            let val = to_value(&file_data).unwrap();
+                            let x = invoke("hemtt_launch_convert", val).await;
+                            mod_data.set(from_value(x).unwrap());
+                        });
+                    }) as Box<dyn FnMut(_)>)
+                };
+                reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
+                reader.read_as_text(&file).unwrap();
+                onloadend.forget();
             }
         })
     };
