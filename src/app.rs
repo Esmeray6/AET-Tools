@@ -4,13 +4,15 @@ use yew_router::prelude::*;
 
 use crate::app::{
     command_line_generator::CommandLineGenerator, hemtt_launch_generator::HEMTTLaunchGenerator,
-    orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter,
+    mod_merger::ModMerger, orbat_generator::ORBATGenerator, orbat_sorter::ORBATSorter,
 };
-
 mod command_line_generator;
 mod hemtt_launch_generator;
+mod mod_merger;
 mod orbat_generator;
 mod orbat_sorter;
+mod render_as_input;
+
 #[wasm_bindgen]
 extern "C" {
     // invoke without arguments
@@ -34,8 +36,8 @@ pub enum Route {
     ORBATGenerator,
     #[at("/hemtt_launch_generator")]
     HEMTTLaunchGenerator,
-    // #[at("/inventory_viewer")]
-    // InventoryViewer,
+    #[at("/mod_merger")]
+    ModMerger,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -58,17 +60,23 @@ pub fn home() -> Html {
     let hemtt_launch_generator_redirect =
         Callback::from(move |_| navig.push(&Route::HEMTTLaunchGenerator));
 
-    println!("Home");
+    let navig = navigator.clone();
+    let mod_merger_redirect = Callback::from(move |_| navig.push(&Route::ModMerger));
 
-    html! {
+    let _html = html! {
         <div class="container column">
             <h1>{ "Antistasi Event Team Tools" }</h1>
             <button onclick={command_line_redirect}>{ "Command Line Generator" }</button>
             <button onclick={orbat_sorter_redirect}>{ "ORBAT Sorter" }</button>
             <button onclick={orbat_generator_redirect}>{ "ORBAT Generator" }</button>
             <button onclick={hemtt_launch_generator_redirect}>{ "HEMTT Launch Generator" }</button>
+            <button onclick={mod_merger_redirect}>{ "Mod Merger" }</button>
         </div>
-    }
+    };
+
+    log::debug!("{:#?}", _html);
+
+    _html
 }
 
 pub fn switch(routes: Route) -> Html {
@@ -84,6 +92,7 @@ pub fn switch(routes: Route) -> Html {
         Route::ORBATSorter => html! { <ORBATSorter /> },
         Route::ORBATGenerator => html! { <ORBATGenerator /> },
         Route::HEMTTLaunchGenerator => html! { <HEMTTLaunchGenerator /> },
+        Route::ModMerger => html! { <ModMerger /> },
     }
 }
 
