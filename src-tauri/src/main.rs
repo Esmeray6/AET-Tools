@@ -3,9 +3,14 @@
 
 mod role;
 
-use std::{collections::HashMap, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    fs::File,
+    io::Write,
+    str::FromStr,
+};
 
-use scraper::{Html, Selector};
+use kuchikiki::{parse_html, traits::TendrilSink};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use tauri_plugin_updater::UpdaterExt;
@@ -118,22 +123,35 @@ struct HEMTTModData {
     result: String,
 }
 
+// fn text_content(node: &kuchikiki::NodeRef) -> String {
+//     let mut out = String::new();
+//     for child in node.children() {
+//         match *child.data() {
+//             kuchikiki::NodeData::Text(ref t) => out.push_str(&t.borrow()),
+//             kuchikiki::NodeData::Element(_) => out.push_str(&text_content(&child)),
+//             _ => {}
+//         }
+//     }
+//     out
+// }
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, String> {
     let mut mod_list = vec![];
     let mut dlcs_list = vec![];
 
-    let markup = Html::parse_document(modpreset);
-    let mods_selector =
-        Selector::parse("div.mod-list > table > tbody > tr > td[data-type='DisplayName']")
-            .expect("No mod list found");
-    let dlc_selector =
-        Selector::parse("div.dlc-list > table > tbody > tr > td[data-type='DisplayName']")
-            .expect("No mod list found");
+    let doc = parse_html()
+        .one(modpreset)
+        .document_node
+        .select_first("html")
+        .expect("No html element");
+    let markup = doc.as_node();
+    let mods_selector = "div.mod-list > table > tbody > tr > td[data-type='DisplayName']";
+    let dlc_selector = "div.dlc-list > table > tbody > tr > td[data-type='DisplayName']";
 
-    for element in markup.select(&dlc_selector) {
-        let dlc_name = element.text().next().unwrap();
+    for element in markup.select(dlc_selector).expect("No DLC list found") {
+        let dlc_name = element.as_node().text_contents();
         // dbg!(&dlc_name);
         dlcs_list.push(dlc_name.to_string());
     }
@@ -143,8 +161,8 @@ fn command_line_convert(modpreset: &str, backticks: bool) -> Result<ModData, Str
     let mut optional_mods = vec![];
     let mut optional_mods_string = String::new();
 
-    for element in markup.select(&mods_selector) {
-        let mut mod_name = element.text().next().unwrap().to_string();
+    for element in markup.select(mods_selector).expect("No mod list found") {
+        let mut mod_name = element.as_node().text_contents();
         mod_name.retain(|c| c.is_ascii_alphanumeric());
         if !mod_name.starts_with("@") {
             mod_name = format!("@{mod_name}");
@@ -293,27 +311,30 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
     let mut mod_list = vec![];
     let mut dlc_list = vec![];
 
-    let markup = Html::parse_document(&modpreset);
-    let mods_selector =
-        Selector::parse("div.mod-list > table > tbody > tr[data-type='ModContainer']")
-            .expect("No mod list found");
-    let dlc_selector =
-        Selector::parse("div.dlc-list > table > tbody > tr[data-type='DlcContainer']")
-            .expect("No DLC list found");
-    let td_selector = Selector::parse("td").expect("No td found");
-    let td_a_selector = Selector::parse("td > a").expect("No td.a found");
+    let doc = parse_html()
+        .one(modpreset)
+        .document_node
+        .select_first("html")
+        .expect("No html element");
+    let markup = doc.as_node();
+    let mods_selector = "div.mod-list > table > tbody > tr[data-type='ModContainer']";
+    let dlc_selector = "div.dlc-list > table > tbody > tr[data-type='DlcContainer']";
+    let td_selector = "td";
+    let td_a_selector = "td > a";
 
-    for element in markup.select(&mods_selector) {
-        let mut children = element.select(&td_selector);
-        // dbg!(&children);
-        let mod_name = children.next().unwrap().inner_html();
+    for element in markup.select(mods_selector).expect("No mod list found") {
+        let mod_name = element
+            .as_node()
+            .select_first(td_selector)
+            .unwrap()
+            .text_contents();
+        dbg!(&mod_name);
 
-        let mod_id_td_a = element.select(&td_a_selector).next();
-        let mut mod_id = mod_id_td_a
-            .expect("mod_id_td_a not found")
-            .attr("href")
-            .unwrap_or("UNKNOWN MOD ID")
-            .to_string();
+        let mod_id_td_a = element.as_node().select_first(td_a_selector).unwrap();
+        let mut mod_id = mod_id_td_a.text_contents();
+        if mod_id.is_empty() {
+            mod_id = "UNKNOWN MOD ID".to_string();
+        }
         mod_id = mod_id
             .strip_prefix("https://steamcommunity.com/sharedfiles/filedetails/?id=")
             .or(mod_id.strip_prefix("http://steamcommunity.com/sharedfiles/filedetails/?id="))
@@ -323,11 +344,14 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
         mod_list.push((mod_id, mod_name));
     }
 
-    for element in markup.select(&dlc_selector) {
-        let mut children = element.select(&td_selector);
-        // dbg!(&children);
+    for element in markup.select(dlc_selector).expect("No DLC list found") {
+        let mut dlc_name = element
+            .as_node()
+            .select_first(td_selector)
+            .unwrap()
+            .text_contents();
+        dbg!(&dlc_name);
 
-        let mut dlc_name = children.next().unwrap().inner_html();
         // dlc_name.retain(|c| c.is_alphanumeric());
         dlc_name = format!("\"{dlc_name}\",");
         dlc_list.push(dlc_name);
@@ -359,45 +383,101 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
     Ok(HEMTTModData { mods, dlcs, result })
 }
 
-// fn sort_mods(html_preset: String) -> Result<String, String> {
-//     let document = Html::parse_document(&html_preset);
+#[tauri::command]
+async fn merge_modsets(
+    app: tauri::AppHandle,
+    firstmodpreset: String,
+    secondmodpreset: String,
+) -> Result<String, String> {
+    let first_doc = parse_html()
+        .one(firstmodpreset)
+        .document_node
+        .select_first("html")
+        .expect("No html element");
+    let first_markup = first_doc.as_node();
 
-//     // Selectors
-//     let tr_selector = Selector::parse(r#"html body div.mod-list table tbody tr"#).unwrap();
-//     let name_selector = Selector::parse(r#"td[data-type="DisplayName"]"#).unwrap();
+    let preset_name = first_markup
+        .select_first("meta[name='arma:PresetName']")
+        .expect("PresetName meta tag not present");
+    if let Some(v) = preset_name.attributes.borrow_mut().get_mut("content") {
+        *v = "AET_TOOLS_MERGED_MODSET".to_owned()
+    };
 
-//     // Extract and collect (DisplayName, tr_html) tuples
-//     let mut mods: Vec<(String, String)> = document
-//         .select(&tr_selector)
-//         .filter_map(|tr| {
-//             let name = tr
-//                 .select(&name_selector)
-//                 .next()?
-//                 .text()
-//                 .collect::<String>()
-//                 .trim()
-//                 .to_string();
-//             Some((name, tr.html()))
-//         })
-//         .collect();
+    let strong = first_markup
+        .select_first("h1 > strong")
+        .expect("Preset name h1 not found");
 
-//     // Sort by DisplayName
-//     mods.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
+    // <strong> has a single text child — replace it
+    let text_node = strong.as_node().first_child().expect("No text in <strong>");
+    if let kuchikiki::NodeData::Text(ref t) = *text_node.data() {
+        *t.borrow_mut() = "AET TOOLS MERGE".to_owned();
+    }
 
-//     let mut final_mods = vec![];
+    let second_doc = parse_html()
+        .one(secondmodpreset)
+        .document_node
+        .select_first("html")
+        .expect("No html element");
+    let second_markup = second_doc.as_node();
 
-//     for (name, tr_html) in mods {
-//         final_mods.push(tr_html);
-//     }
+    let first_doc_mods = first_markup
+        .select_first("div.mod-list > table")
+        .expect("Mod table not found in first modset");
 
-//     // Join the sorted HTML strings
-//     let sorted_html = final_mods.join("\n");
-//     if sorted_html.is_empty() {
-//         return Err("No mods found".to_string());
-//     }
+    let mod_key = |row: &kuchikiki::NodeRef| {
+        row.select_first("td > a")
+            .ok()
+            .map(|link| link.text_contents())
+            .filter(|id| !id.is_empty())
+            .or_else(|| row.select_first("td").ok().map(|cell| cell.text_contents()))
+            .unwrap_or_default()
+    };
 
-//     Ok(sorted_html)
-// }
+    let mut existing_mods = HashSet::new();
+    for row in first_doc_mods
+        .as_node()
+        .select("tr[data-type='ModContainer']")
+        .expect("Mod list not found in first modset")
+    {
+        existing_mods.insert(mod_key(row.as_node()));
+    }
+
+    let second_doc_mods = second_markup
+        .select("tr[data-type='ModContainer']")
+        .expect("Mod list not found in second modset")
+        .filter_map(|row| {
+            let node = row.as_node().clone();
+            if existing_mods.insert(mod_key(&node)) {
+                Some(node)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
+
+    dbg!(&first_doc_mods);
+    eprintln!("Found {} mod rows", second_doc_mods.len());
+
+    for node in second_doc_mods {
+        node.detach();
+        first_doc_mods.as_node().append(node);
+    }
+
+    let download_dir = dbg!(
+        app.path()
+            .download_dir()
+            .map_err(|e| e.to_string())?
+            .join("Merged_Modset.html")
+    );
+
+    let mut out = Vec::new();
+    first_markup.serialize(&mut out).unwrap();
+
+    let mut file = File::create(&download_dir).map_err(|e| e.to_string())?;
+    file.write_all(&out).map_err(|e| e.to_string())?;
+
+    Ok(download_dir.into_string().unwrap())
+}
 
 fn main() {
     let app = tauri::Builder::default()
@@ -448,7 +528,8 @@ fn main() {
             command_line_convert,
             orbat_convert,
             orbat_generate,
-            hemtt_launch_convert
+            hemtt_launch_convert,
+            merge_modsets
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
