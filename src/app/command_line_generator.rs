@@ -22,8 +22,9 @@ struct ModArgs<'a> {
     backticks: bool,
 }
 
-use crate::app::invoke;
 use crate::app::Route;
+use crate::app::invoke;
+use crate::app::render_as_input::render_as_input;
 
 #[function_component(CommandLineGenerator)]
 pub fn command_line_generator() -> Html {
@@ -47,39 +48,36 @@ pub fn command_line_generator() -> Html {
             let target: Option<EventTarget> = event.target();
             let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
 
-            if let Some(input) = input {
-                if let Some(files) = input.files() {
-                    if let Some(file) = files.get(0) {
-                        let reader = FileReader::new().unwrap();
-                        let onloadend = {
-                            let mod_data = mod_data.clone();
-                            Closure::wrap(Box::new(move |event: Event| {
-                                let checked_state = checked_state.clone();
-                                let reader =
-                                    event.target().unwrap().dyn_into::<FileReader>().unwrap();
-                                let text = reader.result().unwrap().as_string().unwrap();
+            if let Some(input) = input
+                && let Some(files) = input.files()
+                && let Some(file) = files.get(0) {
+                    let reader = FileReader::new().unwrap();
+                    let onloadend = {
+                        let mod_data = mod_data.clone();
+                        Closure::wrap(Box::new(move |event: Event| {
+                            let checked_state = checked_state.clone();
+                            let reader = event.target().unwrap().dyn_into::<FileReader>().unwrap();
+                            let text = reader.result().unwrap().as_string().unwrap();
 
-                                let mod_data = mod_data.clone();
-                                // Invoke the Tauri command with the file content
-                                spawn_local(async move {
-                                    //let mod_data = mod_data.clone();
-                                    info!("{}", *checked_state);
-                                    let file_data = ModArgs {
-                                        modpreset: &text,
-                                        backticks: matches!(*checked_state, CheckedState::Checked),
-                                    };
-                                    let val = to_value(&file_data).unwrap();
-                                    let x = invoke("command_line_convert", val).await;
-                                    mod_data.set(from_value(x).unwrap());
-                                });
-                            }) as Box<dyn FnMut(_)>)
-                        };
-                        reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
-                        reader.read_as_text(&file).unwrap();
-                        onloadend.forget();
-                    }
+                            let mod_data = mod_data.clone();
+                            // Invoke the Tauri command with the file content
+                            spawn_local(async move {
+                                //let mod_data = mod_data.clone();
+                                info!("{}", *checked_state);
+                                let file_data = ModArgs {
+                                    modpreset: &text,
+                                    backticks: matches!(*checked_state, CheckedState::Checked),
+                                };
+                                let val = to_value(&file_data).unwrap();
+                                let x = invoke("command_line_convert", val).await;
+                                mod_data.set(from_value(x).unwrap());
+                            });
+                        }) as Box<dyn FnMut(_)>)
+                    };
+                    reader.set_onloadend(Some(onloadend.as_ref().unchecked_ref()));
+                    reader.read_as_text(&file).unwrap();
+                    onloadend.forget();
                 }
-            }
         })
     };
 
@@ -112,29 +110,6 @@ pub fn command_line_generator() -> Html {
         })
     };
 
-    let render_as = Callback::from(|props: CheckboxRenderAsProps| {
-        let is_checked = props.checked == CheckedState::Checked;
-
-        html! {
-            <label
-                id={props.id.clone().map(|checkbox_id| format!("{checkbox_id}-label"))}
-                class={props.class.clone()}
-            >
-                <input
-                    id={props.id}
-                    type="checkbox"
-                    checked={is_checked}
-                    onclick={Callback::from(move |_| props.toggle.emit(()))}
-                    disabled={props.disabled}
-                    required={props.required}
-                    name={props.name.clone()}
-                    value={props.value.clone()}
-                />
-                { for props.children.iter() }
-            </label>
-        }
-    });
-
     html! {
         <div class="container column">
             <h1>{ "Command Line Generator" }</h1>
@@ -147,7 +122,7 @@ pub fn command_line_generator() -> Html {
                 />
                 <Checkbox
                     id="backticks-toggle"
-                    render_as={render_as}
+                    render_as={Callback::from(render_as_input)}
                     default_checked={CheckedState::Checked}
                     checked={(*checked_state).clone()}
                     on_checked_change={on_checked_change}
