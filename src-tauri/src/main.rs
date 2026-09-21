@@ -10,7 +10,7 @@ use std::{
     str::FromStr,
 };
 
-use kuchikiki::{parse_html, traits::TendrilSink};
+use kuchikiki::{iter::NodeIterator, parse_html, traits::TendrilSink};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use tauri_plugin_updater::UpdaterExt;
@@ -388,7 +388,17 @@ async fn merge_modsets(
     app: tauri::AppHandle,
     firstmodpreset: String,
     secondmodpreset: String,
+    modsetname: String,
 ) -> Result<String, String> {
+    let mut modset_name = modsetname;
+
+    if modset_name.is_empty() {
+        modset_name.push_str("AET_TOOLS_MERGED_MODSET");
+    }
+
+    modset_name = modset_name.replace(" ", "_");
+    modset_name.retain(|c| c.is_ascii_alphanumeric() || c == '_');
+
     let first_doc = parse_html()
         .one(firstmodpreset)
         .document_node
@@ -400,8 +410,28 @@ async fn merge_modsets(
         .select_first("meta[name='arma:PresetName']")
         .expect("PresetName meta tag not present");
     if let Some(v) = preset_name.attributes.borrow_mut().get_mut("content") {
-        *v = "AET_TOOLS_MERGED_MODSET".to_owned()
+        *v = "AET_TOOLS_MERGED_MODSET".to_string();
     };
+
+    let generator_name = first_markup
+        .select_first("meta[name='generator']")
+        .expect("generator meta tag not present");
+    if let Some(v) = generator_name.attributes.borrow_mut().get_mut("content") {
+        *v = "AET Tools - https://github.com/Esmeray6/AET-Tools".to_string();
+    };
+
+    let footer = first_markup
+        .select_first("div.footer > span")
+        .expect("footer element not present");
+    // let footer_span = footer
+    //     .as_node()
+    //     .children()
+    //     .next()
+    //     .expect("No footer span element detected");
+    for text_node in footer.as_node().inclusive_descendants().text_nodes() {
+        let mut _node = text_node.borrow_mut();
+        *_node = "Created by AET Tools by Sky".to_string();
+    }
 
     let strong = first_markup
         .select_first("h1 > strong")
@@ -410,7 +440,7 @@ async fn merge_modsets(
     // <strong> has a single text child — replace it
     let text_node = strong.as_node().first_child().expect("No text in <strong>");
     if let kuchikiki::NodeData::Text(ref t) = *text_node.data() {
-        *t.borrow_mut() = "AET TOOLS MERGE".to_owned();
+        *t.borrow_mut() = modset_name.clone();
     }
 
     let second_doc = parse_html()
@@ -455,7 +485,6 @@ async fn merge_modsets(
         })
         .collect::<Vec<_>>();
 
-    dbg!(&first_doc_mods);
     eprintln!("Found {} mod rows", second_doc_mods.len());
 
     for node in second_doc_mods {
@@ -463,11 +492,15 @@ async fn merge_modsets(
         first_doc_mods.as_node().append(node);
     }
 
+    if !(modset_name.ends_with(".html")) {
+        modset_name.push_str(".html");
+    };
+
     let download_dir = dbg!(
         app.path()
             .download_dir()
             .map_err(|e| e.to_string())?
-            .join("Merged_Modset.html")
+            .join(modset_name)
     );
 
     let mut out = Vec::new();
