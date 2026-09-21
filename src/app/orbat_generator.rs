@@ -94,24 +94,19 @@ pub fn orbat_generator() -> Html {
                 new_rolelist.insert(role.to_string(), value);
             }
         }
-        // info!("New rolelist: {:?}", new_rolelist);
+        
         let args = to_value(&ORBATGenerationData {
             orbat: new_rolelist.clone(),
         })
         .expect("Failed to serialize ORBATGenerationData");
         rolelist.set(new_rolelist);
-        // let rolelist = rolelist.clone();
-        // _e.prevent_default();
-        // info!("Generating ORBAT with roles: {:?}", *rolelist);
 
-        // info!("Role list: {:?}", *rolelist);
         spawn_local(async move {
             // let rolelist = rolelist.clone();
             let role_msg = role_msg.clone();
             // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
             let result = invoke("orbat_generate", args).await;
             let generated = from_value::<String>(result).unwrap_or_default();
-            // You may want to update a state here with `generated`
             info!("Generated ORBAT: {generated}");
             role_msg.set(generated);
         });
