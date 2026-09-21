@@ -133,7 +133,7 @@ body {
   height: 340px;
 }
 
-#mod-preset {
+.mod-preset {
   width: fit-content;
   margin: 2vh auto;
 }
