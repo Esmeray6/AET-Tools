@@ -15,6 +15,7 @@ struct ModData {
 struct ModArgs {
     firstmodpreset: String,
     secondmodpreset: String,
+    modsetname: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -43,20 +44,30 @@ pub fn mod_merger() -> Html {
         text: String::new(),
     });
 
+    let new_modset_name_ref = use_node_ref();
+
     let onclick_merge = {
         let mod_list1 = modlist1.clone();
         let mod_list2 = modlist2.clone();
         let merge_result = merge_result.clone();
+        let new_modset_name_ref = new_modset_name_ref.clone();
 
         Callback::from(move |_| {
             let mod_list1 = mod_list1.clone();
             let mod_list2 = mod_list2.clone();
             let merge_result = merge_result.clone();
+            let modset_name = dbg!(
+                new_modset_name_ref
+                    .cast::<web_sys::HtmlInputElement>()
+                    .unwrap()
+                    .value()
+            );
 
             spawn_local(async move {
                 let args = ModArgs {
                     firstmodpreset: mod_list1.mod_preset.clone(),
                     secondmodpreset: mod_list2.mod_preset.clone(),
+                    modsetname: modset_name,
                 };
                 let js_value = to_value(&args).unwrap();
                 let res = invoke("merge_modsets", js_value).await;
@@ -139,18 +150,22 @@ pub fn mod_merger() -> Html {
                     onchange={onchange_first}
                     type="file"
                     name="mod-preset"
-                    id="mod-preset"
+                    class="mod-preset"
                 />
             </div>
             <div class="container column">
-                <p class="role">{ "Modset 1" }</p>
+                <p class="role">{ "Modset 2" }</p>
                 <input
                     accept=".html"
                     onchange={onchange_second}
                     type="file"
                     name="mod-preset"
-                    id="mod-preset"
+                    class="mod-preset"
                 />
+            </div>
+            <div class="container column">
+                <p class="role">{ "Merged modset file name" }</p>
+                <input type="text" class="mod-preset" ref={new_modset_name_ref} />
             </div>
             <p id="merge-result">{ merge_result.text.to_string() }</p>
             <button id="merge-modsets" onclick={onclick_merge}>{ "Merge and Download" }</button>
