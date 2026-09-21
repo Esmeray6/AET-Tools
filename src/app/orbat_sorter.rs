@@ -52,10 +52,10 @@ pub fn orbat_sorter() -> Html {
         dbg!(&rolelist, &role_input_ref);
         Callback::from(move |_e: MouseEvent| {
             // e.prevent_default();
-            rolelist.set(dbg!(role_input_ref
+            rolelist.set(role_input_ref
                 .cast::<web_sys::HtmlInputElement>()
                 .unwrap()
-                .value()));
+                .value());
         })
     };
 
