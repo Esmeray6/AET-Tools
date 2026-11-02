@@ -399,12 +399,18 @@ async fn merge_modsets(
     modset_name = modset_name.replace(" ", "_");
     modset_name.retain(|c| c.is_ascii_alphanumeric() || c == '_');
 
-    let first_doc = parse_html()
-        .one(firstmodpreset)
-        .document_node
+    let header_end = firstmodpreset
+        .find("<html")
+        .ok_or("No <html> element in first modset")?;
+    let header = firstmodpreset[..header_end]
+        .trim_start_matches('\u{feff}')
+        .to_string();
+
+    let first_doc = parse_html().one(firstmodpreset).document_node;
+    let first_doc_html = first_doc
         .select_first("html")
-        .expect("No html element");
-    let first_markup = first_doc.as_node();
+        .expect("No first doc elements");
+    let first_markup = first_doc_html.as_node();
 
     let preset_name = first_markup
         .select_first("meta[name='arma:PresetName']")
@@ -423,11 +429,7 @@ async fn merge_modsets(
     let footer = first_markup
         .select_first("div.footer > span")
         .expect("footer element not present");
-    // let footer_span = footer
-    //     .as_node()
-    //     .children()
-    //     .next()
-    //     .expect("No footer span element detected");
+
     for text_node in footer.as_node().inclusive_descendants().text_nodes() {
         let mut _node = text_node.borrow_mut();
         *_node = "Created by AET Tools by Sky".to_string();
@@ -443,12 +445,11 @@ async fn merge_modsets(
         *t.borrow_mut() = modset_name.clone();
     }
 
-    let second_doc = parse_html()
-        .one(secondmodpreset)
-        .document_node
+    let second_doc = parse_html().one(secondmodpreset).document_node;
+    let second_doc_html = second_doc
         .select_first("html")
-        .expect("No html element");
-    let second_markup = second_doc.as_node();
+        .map_err(|_| "No <html> element in second modset".to_string())?;
+    let second_markup = second_doc_html.as_node();
 
     let first_doc_mods = first_markup
         .select_first("div.mod-list > table")
@@ -503,11 +504,21 @@ async fn merge_modsets(
             .join(modset_name)
     );
 
-    let mut out = Vec::new();
-    first_markup.serialize(&mut out).unwrap();
+    let mut out = header.into_bytes();
+    first_markup
+        .serialize(&mut out)
+        .map_err(|e| e.to_string())?;
+
+    // Restore the break after <html> and before <head>, and use CRLF like the Launcher files
+    let body = String::from_utf8(out)
+        .map_err(|e| e.to_string())?
+        .replace("\r\n", "\n")
+        .replace("<html><!--", "<html>\n  <!--")
+        .replace("--><head>", "-->\n  <head>")
+        .replace('\n', "\r\n");
 
     let mut file = File::create(&download_dir).map_err(|e| e.to_string())?;
-    file.write_all(&out).map_err(|e| e.to_string())?;
+    file.write_all(body.as_bytes()).map_err(|e| e.to_string())?;
 
     Ok(download_dir.into_string().unwrap())
 }
