@@ -49,7 +49,6 @@ pub fn orbat_sorter() -> Html {
     let onclick = {
         let rolelist = rolelist.clone();
         let role_input_ref = role_input_ref.clone();
-        dbg!(&rolelist, &role_input_ref);
         Callback::from(move |_e: MouseEvent| {
             // e.prevent_default();
             rolelist.set(role_input_ref

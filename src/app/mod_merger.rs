@@ -56,12 +56,10 @@ pub fn mod_merger() -> Html {
             let mod_list1 = mod_list1.clone();
             let mod_list2 = mod_list2.clone();
             let merge_result = merge_result.clone();
-            let modset_name = dbg!(
-                new_modset_name_ref
-                    .cast::<web_sys::HtmlInputElement>()
-                    .unwrap()
-                    .value()
-            );
+            let modset_name = new_modset_name_ref
+                .cast::<web_sys::HtmlInputElement>()
+                .unwrap()
+                .value();
 
             spawn_local(async move {
                 let args = ModArgs {
