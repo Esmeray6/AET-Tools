@@ -317,8 +317,8 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
         .select_first("html")
         .expect("No html element");
     let markup = doc.as_node();
-    let mods_selector = "div.mod-list > table > tbody > tr[data-type='ModContainer']";
-    let dlc_selector = "div.dlc-list > table > tbody > tr[data-type='DlcContainer']";
+    let mods_selector = "div.mod-list > table > tr[data-type='ModContainer']";
+    let dlc_selector = "div.dlc-list > table > tr[data-type='DlcContainer']";
     let td_selector = "td";
     let td_a_selector = "td > a";
 
@@ -328,7 +328,7 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
             .select_first(td_selector)
             .unwrap()
             .text_contents();
-        dbg!(&mod_name);
+        // dbg!(&mod_name);
 
         let mod_id_td_a = element.as_node().select_first(td_a_selector).unwrap();
         let mut mod_id = mod_id_td_a.text_contents();
@@ -350,7 +350,7 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
             .select_first(td_selector)
             .unwrap()
             .text_contents();
-        dbg!(&dlc_name);
+        // dbg!(&dlc_name);
 
         // dlc_name.retain(|c| c.is_alphanumeric());
         dlc_name = format!("\"{dlc_name}\",");
@@ -393,7 +393,7 @@ async fn merge_modsets(
     let mut modset_name = modsetname;
 
     if modset_name.is_empty() {
-        modset_name.push_str("AET_TOOLS_MERGED_MODSET");
+        modset_name = "AET_TOOLS_MERGED_MODSET".to_owned();
     }
 
     modset_name = modset_name.replace(" ", "_");
@@ -412,11 +412,17 @@ async fn merge_modsets(
         .expect("No first doc elements");
     let first_markup = first_doc_html.as_node();
 
+    let tables: Vec<_> = first_markup
+        .select("table")
+        .map_err(|_| "no tables in merged modset".to_string())?
+        .map(|t| t.as_node().clone())
+        .collect();
+
     let preset_name = first_markup
         .select_first("meta[name='arma:PresetName']")
         .expect("PresetName meta tag not present");
     if let Some(v) = preset_name.attributes.borrow_mut().get_mut("content") {
-        *v = "AET_TOOLS_MERGED_MODSET".to_string();
+        *v = modset_name.clone();
     };
 
     let generator_name = first_markup
@@ -497,12 +503,27 @@ async fn merge_modsets(
         modset_name.push_str(".html");
     };
 
-    let download_dir = dbg!(
+    let download_dir = 
         app.path()
             .download_dir()
             .map_err(|e| e.to_string())?
             .join(modset_name)
-    );
+    ;
+
+    for table in tables {
+        let tbodies: Vec<_> = table
+            .children()
+            .filter(|n| n.as_element().is_some_and(|e| &*e.name.local == "tbody"))
+            .collect();
+        for tbody in tbodies {
+            let rows: Vec<_> = tbody.children().collect();
+            for row in rows {
+                row.detach();
+                tbody.insert_before(row);
+            }
+            tbody.detach();
+        }
+    }
 
     let mut out = header.into_bytes();
     first_markup
@@ -510,12 +531,31 @@ async fn merge_modsets(
         .map_err(|e| e.to_string())?;
 
     // Restore the break after <html> and before <head>, and use CRLF like the Launcher files
-    let body = String::from_utf8(out)
+    let mut body = String::from_utf8(out)
         .map_err(|e| e.to_string())?
         .replace("\r\n", "\n")
         .replace("<html><!--", "<html>\n  <!--")
         .replace("--><head>", "-->\n  <head>")
         .replace('\n', "\r\n");
+
+    body = body
+        .lines()
+        .map(|line| {
+            let trimmed_line = line.trim();
+            if (trimmed_line.starts_with("<meta") || trimmed_line.starts_with("<link"))
+                && !trimmed_line.ends_with(" />")
+                && let Some(stripped_line) = trimmed_line.strip_suffix(">")
+            {
+                let mut stripped_line = stripped_line.to_string();
+                stripped_line.push_str(" />");
+
+                trimmed_line.replace(trimmed_line, &stripped_line)
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<String>>()
+        .join("\r\n");
 
     let mut file = File::create(&download_dir).map_err(|e| e.to_string())?;
     file.write_all(body.as_bytes()).map_err(|e| e.to_string())?;
