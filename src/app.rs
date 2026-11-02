@@ -74,7 +74,7 @@ pub fn home() -> Html {
         </div>
     };
 
-    log::debug!("{:#?}", _html);
+    // log::debug!("{:#?}", _html);
 
     _html
 }
