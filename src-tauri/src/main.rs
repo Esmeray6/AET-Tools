@@ -317,8 +317,8 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
         .select_first("html")
         .expect("No html element");
     let markup = doc.as_node();
-    let mods_selector = "div.mod-list > table > tr[data-type='ModContainer']";
-    let dlc_selector = "div.dlc-list > table > tr[data-type='DlcContainer']";
+    let mods_selector = "div.mod-list > table > tbody > tr[data-type='ModContainer']";
+    let dlc_selector = "div.dlc-list > table > tbody > tr[data-type='DlcContainer']";
     let td_selector = "td";
     let td_a_selector = "td > a";
 
@@ -328,9 +328,12 @@ async fn hemtt_launch_convert(modpreset: String) -> Result<HEMTTModData, String>
             .select_first(td_selector)
             .unwrap()
             .text_contents();
-        // dbg!(&mod_name);
+        dbg!(&element.as_node().children());
 
-        let mod_id_td_a = element.as_node().select_first(td_a_selector).unwrap();
+        let mod_id_td_a = element
+            .as_node()
+            .select_first(td_a_selector)
+            .expect("No mod id found");
         let mut mod_id = mod_id_td_a.text_contents();
         if mod_id.is_empty() {
             mod_id = "UNKNOWN MOD ID".to_string();
@@ -503,12 +506,11 @@ async fn merge_modsets(
         modset_name.push_str(".html");
     };
 
-    let download_dir = 
-        app.path()
-            .download_dir()
-            .map_err(|e| e.to_string())?
-            .join(modset_name)
-    ;
+    let download_dir = app
+        .path()
+        .download_dir()
+        .map_err(|e| e.to_string())?
+        .join(modset_name);
 
     for table in tables {
         let tbodies: Vec<_> = table
